@@ -53,6 +53,7 @@ namespace term
 	struct mouse_event
 	{
 		std::variant<mouse_button_event, mouse_wheel_event, mouse_move_event> event;
+		position pos;
 
 		template<typename type>
 		bool is() const

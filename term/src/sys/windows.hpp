@@ -282,11 +282,12 @@ namespace term::sys
 		{
 			case MOUSE_EVENT:
 			{
+				mouse_event mevent{};
+				mevent.pos = { static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.X), static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.Y) };
 				switch (record.Event.MouseEvent.dwEventFlags)
 				{
 					case 0:
 					{
-						mouse_event mevent{};
 						if (record.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 						{
 							mevent.event = mouse_button_event{ mouse_button::left, mouse_button_state::down };
@@ -312,7 +313,6 @@ namespace term::sys
 					break;
 					case MOUSE_WHEELED:
 					{
-						mouse_event mevent{};
 						int delta = static_cast<int>(static_cast<int16_t>(record.Event.MouseEvent.dwButtonState >> 16));
 						if (delta == 0) return std::nullopt;
 						if (delta > 0)
@@ -328,7 +328,6 @@ namespace term::sys
 					break;
 					case MOUSE_HWHEELED:
 					{
-						mouse_event mevent{};
 						int delta = static_cast<int>(static_cast<int16_t>(record.Event.MouseEvent.dwButtonState >> 16));
 						if (delta == 0) return std::nullopt;
 						if (delta > 0)
@@ -344,7 +343,6 @@ namespace term::sys
 					break;
 					case MOUSE_MOVED:
 					{
-						mouse_event mevent{};
 						mevent.event = mouse_move_event{ { static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.X), static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.Y) } };
 						return event{ mevent };
 					}
