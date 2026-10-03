@@ -79,7 +79,24 @@ int main(int argc, char* argv[])
 		std::string message;
 		if (event.has_value())
 		{
-			if (auto event_mouse = event->try_get<mouse_event>())
+			if (auto event_key = event->try_get<key_event>())
+			{
+				message = "Key (" + std::string(event_key->type == key_event_type::press ? "Press" : (event_key->type == key_event_type::repeat ? "Repeat" : "Release")) + "): ";
+				if (event_key->key.is<key::code>())
+				{
+					message += std::to_string(static_cast<int>(event_key->key.get<key::code>()));
+				}
+				else if (event_key->key.is<key::fn>())
+				{
+					message += "F" + std::to_string(event_key->key.get<key::fn>().number);
+				}
+				else if (event_key->key.is<key::chr>())
+				{
+					message += "'" + std::string(1, static_cast<char>(event_key->key.get<key::chr>().c)) + "'";
+				}
+				add_key_modifiers(message, event_key->modifiers);
+			}
+			else if (auto event_mouse = event->try_get<mouse_event>())
 			{
 				if (auto event_mouse_move = event_mouse->try_get<mouse_move_event>())
 				{
@@ -127,11 +144,10 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		//static int i{};
-		//message += std::to_string((i++) % 10);
-
 		if (!message.empty())
 		{
+			term.writeln(message);
+			/*
 			auto cpos = backend.get_cursor_pos().value();
 			term.reset_cursor_pos()
 				.write(message);
@@ -140,6 +156,7 @@ int main(int argc, char* argv[])
 			{
 				term.write(std::string(chars_left, ' '));
 			}
+			*/
 		}
 	}
 	term.set_cursor_visible(true);

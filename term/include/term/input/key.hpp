@@ -1,19 +1,48 @@
 #pragma once
+#include <cstdint>
 #include <variant>
-#include "mouse_event.hpp"
-#include "resize_event.hpp"
-#include "focus_changed_event.hpp"
-#include "key_event.hpp"
 
 namespace term
 {
-	class event
+	class key
 	{
 	public:
-		event(const std::variant<key_event, mouse_event, focus_changed_event, resize_event>& data) : data_{ data } {}
+		enum class code : uint8_t
+		{
+			unknown,
+			backspace,
+			enter,
+			left,
+			right,
+			up,
+			down,
+			home,
+			end,
+			pageup,
+			pagedown,
+			tab,
+			backtab,
+			delete_,
+			insert,
+			escape,
+		};
+
+		struct fn
+		{
+			uint8_t number{};
+		};
+
+		struct chr
+		{
+			uint8_t c{};
+		};
+		
+		key(code c) : data_{ c } {}
+		key(fn f) : data_{ f } {}
+		key(chr c) : data_{ c } {}
 
 	private:
-		std::variant<key_event, mouse_event, focus_changed_event, resize_event> data_;
+		std::variant<code, fn, chr> data_;
 
 	public:
 		template<typename type>

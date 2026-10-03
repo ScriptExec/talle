@@ -9,6 +9,8 @@
 #include <term/utils/position.hpp>
 #include <term/event/event.hpp>
 #include <term/event/resize_event.hpp>
+#include <term/input/key.hpp>
+#include <term/event/key_event.hpp>
 
 namespace term::sys
 {
@@ -288,6 +290,67 @@ namespace term::sys
 		return modifiers;
 	}
 
+	wchar_t raw_key_char(const KEY_EVENT_RECORD& e)
+	{
+		UINT ch = MapVirtualKey(e.wVirtualKeyCode, MAPVK_VK_TO_CHAR);
+		return static_cast<wchar_t>(ch & 0x7FFF);
+	}
+
+	std::optional<key> to_key(const KEY_EVENT_RECORD& e)
+	{
+		switch (e.wVirtualKeyCode)
+		{
+			case VK_BACK: return key{ key::code::backspace };
+			case VK_RETURN: return key{ key::code::enter };
+			case VK_LEFT: return key{ key::code::left };
+			case VK_RIGHT: return key{ key::code::right };
+			case VK_UP: return key{ key::code::up };
+			case VK_DOWN: return key{ key::code::down };
+			case VK_HOME: return key{ key::code::home };
+			case VK_END: return key{ key::code::end };
+			case VK_PRIOR: return key{ key::code::pageup };
+			case VK_NEXT: return key{ key::code::pagedown };
+			case VK_TAB: return key{ key::code::tab };
+			case VK_DELETE: return key{ key::code::delete_ };
+			case VK_INSERT: return key{ key::code::insert };
+			case VK_ESCAPE: return key{ key::code::escape };
+			case VK_F1: [[fallthrough]];
+			case VK_F2: [[fallthrough]];
+			case VK_F3: [[fallthrough]];
+			case VK_F4: [[fallthrough]];
+			case VK_F5: [[fallthrough]];
+			case VK_F6: [[fallthrough]];
+			case VK_F7: [[fallthrough]];
+			case VK_F8: [[fallthrough]];
+			case VK_F9: [[fallthrough]];
+			case VK_F10: [[fallthrough]];
+			case VK_F11: [[fallthrough]];
+			case VK_F12: return key{ key::fn{ static_cast<uint8_t>(e.wVirtualKeyCode - VK_F1 + 1) } };
+			//TODO: Should F13-F24 be handled?
+			default: break;
+		}
+
+		//printable characters
+		wchar_t c = e.uChar.UnicodeChar;
+		if ((e.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) and e.wVirtualKeyCode >= 'A' and e.wVirtualKeyCode <= 'Z')
+		{
+			c = static_cast<wchar_t>(e.wVirtualKeyCode + ('a' - 'A'));
+		}
+
+		if (c != L'\0')
+		{
+			//wchar_t c = e.uChar.UnicodeChar;
+			/*
+			auto c = raw_key_char(e);
+			if (c <= 0xFF)
+			{
+			}
+			*/
+			return key{ key::chr{ static_cast<uint8_t>(c) } };
+		}
+		return std::nullopt;
+	}
+
 	std::optional<event> read_event()
 	{
 		auto handle = get_current_input_handle();
@@ -303,11 +366,20 @@ namespace term::sys
 
 		switch (record.EventType)
 		{
+			case KEY_EVENT:
+			{
+				auto key = to_key(record.Event.KeyEvent);
+				key_event kev{ key.value_or(key::code::unknown) };
+				kev.type = !record.Event.KeyEvent.bKeyDown ? key_event_type::release : (record.Event.KeyEvent.wRepeatCount > 1 ? key_event_type::repeat : key_event_type::press);
+				kev.modifiers = to_key_modifiers(record.Event.KeyEvent.dwControlKeyState);
+				return event{ kev };
+			}
+			break;
 			case MOUSE_EVENT:
 			{
-				mouse_event mevent{};
-				mevent.pos = { static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.X), static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.Y) };
-				mevent.modifiers = to_key_modifiers(record.Event.MouseEvent.dwControlKeyState);
+				mouse_event mev{};
+				mev.pos = { static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.X), static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.Y) };
+				mev.modifiers = to_key_modifiers(record.Event.MouseEvent.dwControlKeyState);
 
 				switch (record.Event.MouseEvent.dwEventFlags)
 				{
@@ -315,24 +387,24 @@ namespace term::sys
 					{
 						if (record.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 						{
-							mevent.event = mouse_button_event{ mouse_button::left, mouse_button_state::down };
-							return event{ mevent };
+							mev.event = mouse_button_event{ mouse_button::left, mouse_button_state::down };
+							return event{ mev };
 
 						}
 						else if (record.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED)
 						{
-							mevent.event = mouse_button_event{ mouse_button::right, mouse_button_state::down };
-							return event{ mevent };
+							mev.event = mouse_button_event{ mouse_button::right, mouse_button_state::down };
+							return event{ mev };
 						}
 						else if (record.Event.MouseEvent.dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
 						{
-							mevent.event = mouse_button_event{ mouse_button::middle, mouse_button_state::down };
-							return event{ mevent };
+							mev.event = mouse_button_event{ mouse_button::middle, mouse_button_state::down };
+							return event{ mev };
 						}
 						else
 						{
-							mevent.event = mouse_button_event{ mouse_button::left, mouse_button_state::up };
-							return event{ mevent };
+							mev.event = mouse_button_event{ mouse_button::left, mouse_button_state::up };
+							return event{ mev };
 						}
 					}
 					break;
@@ -342,13 +414,13 @@ namespace term::sys
 						if (delta == 0) return std::nullopt;
 						if (delta > 0)
 						{
-							mevent.event = mouse_wheel_event{ mouse_wheel_direction::up, delta };
+							mev.event = mouse_wheel_event{ mouse_wheel_direction::up, delta };
 						}
 						else
 						{
-							mevent.event = mouse_wheel_event{ mouse_wheel_direction::down, delta };
+							mev.event = mouse_wheel_event{ mouse_wheel_direction::down, delta };
 						}
-						return event{ mevent };
+						return event{ mev };
 					}
 					break;
 					case MOUSE_HWHEELED:
@@ -357,19 +429,19 @@ namespace term::sys
 						if (delta == 0) return std::nullopt;
 						if (delta > 0)
 						{
-							mevent.event = mouse_wheel_event{ mouse_wheel_direction::right, delta };
+							mev.event = mouse_wheel_event{ mouse_wheel_direction::right, delta };
 						}
 						else
 						{
-							mevent.event = mouse_wheel_event{ mouse_wheel_direction::left, delta };
+							mev.event = mouse_wheel_event{ mouse_wheel_direction::left, delta };
 						}
-						return event{ mevent };
+						return event{ mev };
 					}
 					break;
 					case MOUSE_MOVED:
 					{
-						mevent.event = mouse_move_event{ { static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.X), static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.Y) } };
-						return event{ mevent };
+						mev.event = mouse_move_event{ { static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.X), static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.Y) } };
+						return event{ mev };
 					}
 					break;
 					default: return std::nullopt;
@@ -377,15 +449,15 @@ namespace term::sys
 			}
 			case FOCUS_EVENT:
 			{
-				focus_changed_event fevent{ record.Event.FocusEvent.bSetFocus ? focus_change_type::gained : focus_change_type::lost };
-				return event{ fevent };
+				focus_changed_event fev{ record.Event.FocusEvent.bSetFocus ? focus_change_type::gained : focus_change_type::lost };
+				return event{ fev };
 			}
 			case WINDOW_BUFFER_SIZE_EVENT:
 			{
 				auto width = static_cast<uint16_t>(record.Event.WindowBufferSizeEvent.dwSize.X);
 				auto height = static_cast<uint16_t>(record.Event.WindowBufferSizeEvent.dwSize.Y);
-				resize_event revent{ { width, height } };
-				return event{ revent };
+				resize_event rev{ { width, height } };
+				return event{ rev };
 			}
 			break;
 			default: return std::nullopt;
