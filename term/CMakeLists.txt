@@ -1,0 +1,44 @@
+﻿project("term")
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS 
+	"${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/src/*.cpp"
+	"${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/src/*.hpp"
+)
+file(GLOB_RECURSE INCLUDE_FILES CONFIGURE_DEPENDS
+	"${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/include/*.hpp"
+)
+add_library(${PROJECT_NAME} STATIC)
+target_sources(${PROJECT_NAME}
+	PRIVATE ${SOURCE_FILES}
+	PUBLIC ${INCLUDE_FILES}
+)
+
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		CXX_STANDARD 20
+		CXX_STANDARD_REQUIRED ON
+		CXX_EXTENSIONS OFF
+	)
+endif()
+
+if (MSVC)
+	target_compile_options(${PROJECT_NAME} PRIVATE 
+		/permissive-
+	)
+else()
+	target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
+endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+	PRIVATE
+		"${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
+
+option(BUILD_EXAMPLES "Should term usage examples be built" ON)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
