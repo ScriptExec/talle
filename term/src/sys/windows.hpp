@@ -92,7 +92,6 @@ namespace term::sys
 		if (value)
 		{
 			mode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT;
-			mode &= ~ENABLE_QUICK_EDIT_MODE;
 		}
 		else
 		{
@@ -223,10 +222,14 @@ namespace term::sys
 		if (!GetConsoleMode(*handle, &mode)) return false;
 		if (value)
 		{
+			mode |= ENABLE_EXTENDED_FLAGS;
+			mode &= ~ENABLE_QUICK_EDIT_MODE;
 			mode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT);
 		}
 		else
 		{
+			mode |= ENABLE_EXTENDED_FLAGS;
+			mode |= ENABLE_QUICK_EDIT_MODE;
 			mode |= (ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT);
 		}
 		return SetConsoleMode(*handle, mode) != 0;
@@ -267,14 +270,34 @@ namespace term::sys
 		}
 	}
 
+	key_modifiers to_key_modifiers(DWORD state)
+	{
+		key_modifiers modifiers;
+		if (state & SHIFT_PRESSED)
+		{
+			modifiers.set(key_modifier::shift, true);
+		}
+		if (state & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+		{
+			modifiers.set(key_modifier::ctrl, true);
+		}
+		if (state & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
+		{
+			modifiers.set(key_modifier::alt, true);
+		}
+		return modifiers;
+	}
+
 	std::optional<event> read_event()
 	{
 		auto handle = get_current_input_handle();
 		if (!handle) return std::nullopt;
 
 		INPUT_RECORD record{};
-		DWORD events_read = 0;
+		DWORD events_read{};
 
+		DWORD events_waiting{};
+		if (GetNumberOfConsoleInputEvents(*handle, &events_waiting) and events_waiting == 0) return std::nullopt;
 		if (!ReadConsoleInput(*handle, &record, 1, &events_read)) return std::nullopt;
 		if (events_read == 0) return std::nullopt;
 
@@ -284,6 +307,8 @@ namespace term::sys
 			{
 				mouse_event mevent{};
 				mevent.pos = { static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.X), static_cast<uint16_t>(record.Event.MouseEvent.dwMousePosition.Y) };
+				mevent.modifiers = to_key_modifiers(record.Event.MouseEvent.dwControlKeyState);
+
 				switch (record.Event.MouseEvent.dwEventFlags)
 				{
 					case 0:

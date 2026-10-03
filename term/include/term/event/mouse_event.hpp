@@ -1,6 +1,7 @@
 #pragma once
 #include <variant>
 #include <term/utils/position.hpp>
+#include <term/input/key_modifier.hpp>
 
 namespace term
 {
@@ -54,6 +55,7 @@ namespace term
 	{
 		std::variant<mouse_button_event, mouse_wheel_event, mouse_move_event> event;
 		position pos;
+		key_modifiers modifiers;
 
 		template<typename type>
 		bool is() const
