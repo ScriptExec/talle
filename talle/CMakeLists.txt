@@ -6,7 +6,14 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
 file(GLOB_RECURSE INCLUDE_FILES CONFIGURE_DEPENDS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
-add_library(${PROJECT_NAME} STATIC)
+
+option(TALLE_STATIC "Build talle as a static library" ON)
+if(TALLE_STATIC)
+    add_library(${PROJECT_NAME} STATIC)
+else()
+    add_library(${PROJECT_NAME} SHARED)
+endif()
+
 target_sources(${PROJECT_NAME}
 	PRIVATE ${SOURCE_FILES}
 	PUBLIC ${INCLUDE_FILES}

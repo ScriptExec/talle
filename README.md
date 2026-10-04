@@ -38,8 +38,9 @@ If your project uses CMake, you can add the following lines to your CMakeLists.t
 ```cmake
 # You can optionally provide these options:
 set(TALLE_BUILD_EXAMPLES OFF) # default: ON
+set(TALLE_STATIC OFF) # default: ON
 
-add_subdirectory(path/to/talle)
+add_subdirectory("path/to/talle")
 target_link_libraries(${PROJECT_NAME} PRIVATE talle)
 ```
 
