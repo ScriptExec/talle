@@ -15,6 +15,9 @@ namespace talle::sys
 	*/
 	using handle = void*;
 
+	struct platform_data;
+	extern platform_data data;
+
 	std::optional<handle> stdout_handle();
 	std::optional<handle> stderr_handle();
 	std::optional<handle> stdin_handle();
@@ -25,6 +28,8 @@ namespace talle::sys
 	bool setup();
 	bool set_cursor_visible(bool value);
 	bool set_cursor_pos(position pos);
+	bool save_cursor_pos();
+	bool restore_cursor_pos();
 	bool set_title(const std::string& title);
 	bool toggle_alternative_buffer(bool value);
 	bool toggle_mouse_capture(bool value);

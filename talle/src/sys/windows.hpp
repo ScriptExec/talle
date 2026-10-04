@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <atomic>
 
 #define VC_EXTRALEAN
 #define NOMINMAX
@@ -16,6 +17,11 @@
 
 namespace talle::sys
 {
+	struct platform_data
+	{
+		std::atomic<uint32_t> saved_cursor_pos{ 0 };
+	} data;
+
 	std::optional<handle> stdout_handle()
 	{
 		HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -102,6 +108,20 @@ namespace talle::sys
 		coord.X = pos.x;
 		coord.Y = pos.y;
 		return SetConsoleCursorPosition(*handle, coord);
+	}
+
+	bool save_cursor_pos()
+	{
+		auto pos = get_cursor_pos();
+		if (!pos.has_value()) return false;
+		data.saved_cursor_pos.store((pos->x << 16) | pos->y, std::memory_order_relaxed);
+		return true;
+	}
+
+	bool restore_cursor_pos()
+	{
+		auto pos = static_cast<uint32_t>(data.saved_cursor_pos.load(std::memory_order_relaxed));
+		return set_cursor_pos({ static_cast<uint16_t>(pos >> 16), static_cast<uint16_t>(pos & 0xFFFF) });
 	}
 
 	bool set_title(const std::string& title)

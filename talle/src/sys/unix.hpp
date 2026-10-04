@@ -17,6 +17,11 @@
 
 namespace talle::sys
 {
+	struct platform_data
+	{
+
+	} data;
+
 	std::optional<handle> stdout_handle()
 	{
 		return reinterpret_cast<handle>(STDOUT_FILENO);
