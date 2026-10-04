@@ -6,6 +6,7 @@
 #include <iostream>
 #include <csignal>
 
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/io.h>
 #include <sys/ioctl.h>
@@ -16,6 +17,20 @@
 
 namespace talle::sys
 {
+	std::optional<handle> current_output_handle()
+	{
+		int fd = open("/dev/tty", O_WRONLY);
+		if (fd == -1) return std::nullopt;
+		return reinterpret_cast<handle>(fd);
+	}
+
+	std::optional<handle> current_input_handle()
+	{
+		int fd = open("/dev/tty", O_RDONLY);
+		if (fd == -1) return std::nullopt;
+		return reinterpret_cast<handle>(fd);
+	}
+
 	bool setup()
 	{
 		return true;

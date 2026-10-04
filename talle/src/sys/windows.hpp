@@ -16,7 +16,7 @@
 
 namespace talle::sys
 {
-	std::optional<HANDLE> get_current_output_handle()
+	std::optional<handle> win_current_output_handle()
 	{
 		HANDLE handle = CreateFile
 		(
@@ -28,7 +28,7 @@ namespace talle::sys
 		return handle;
 	}
 
-	std::optional<HANDLE> get_current_input_handle()
+	std::optional<handle> win_current_input_handle()
 	{
 		HANDLE handle = CreateFile
 		(
@@ -40,9 +40,19 @@ namespace talle::sys
 		return handle;
 	}
 
+	std::optional<void*> current_output_handle()
+	{
+		return win_current_output_handle();
+	}
+
+	std::optional<void*> current_input_handle()
+	{
+		return win_current_input_handle();
+	}
+
 	bool setup()
 	{
-		auto handle = get_current_output_handle();
+		auto handle = win_current_output_handle();
 		if (!handle) return false;
 		DWORD mode;
 		if (!SetConsoleOutputCP(CP_UTF8)) return false;
@@ -53,7 +63,7 @@ namespace talle::sys
 
 	bool set_cursor_visible(bool value)
 	{
-		auto handle = get_current_output_handle();
+		auto handle = win_current_output_handle();
 		if (!handle) return false;
 
 		CONSOLE_CURSOR_INFO cci;
@@ -65,7 +75,7 @@ namespace talle::sys
 
 	bool set_cursor_pos(position pos)
 	{
-		auto handle = get_current_output_handle();
+		auto handle = win_current_output_handle();
 		if (!handle) return false;
 		COORD coord;
 		coord.X = pos.x;
@@ -82,7 +92,7 @@ namespace talle::sys
 
 	bool toggle_alternative_buffer(bool value)
 	{
-		auto handle = get_current_output_handle();
+		auto handle = win_current_output_handle();
 		if (!handle) return false;
 
 		SECURITY_ATTRIBUTES sa;
@@ -96,7 +106,7 @@ namespace talle::sys
 
 	bool toggle_mouse_capture(bool value)
 	{
-		auto handle = get_current_input_handle();
+		auto handle = win_current_input_handle();
 		if (!handle) return false;
 		DWORD mode;
 		if (!GetConsoleMode(*handle, &mode)) return false;
@@ -114,7 +124,7 @@ namespace talle::sys
 	std::optional<position> get_cursor_pos()
 	{
 		//read it from dwCursorPosition
-		auto handle = get_current_output_handle();
+		auto handle = win_current_output_handle();
 		if (!handle) return std::nullopt;
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return std::nullopt;
@@ -149,7 +159,7 @@ namespace talle::sys
 
 	bool clear(COORD start_pos, uint32_t length, uint16_t attribute)
 	{
-		auto handle = get_current_output_handle();
+		auto handle = win_current_output_handle();
 		if (!handle) return false;
 
 		if (fill_with_char(*handle, start_pos, length, ' ') == 0) return false;
@@ -227,7 +237,7 @@ namespace talle::sys
 
 	bool set_raw_mode(bool value)
 	{
-		auto handle = get_current_input_handle();
+		auto handle = win_current_input_handle();
 		if (!handle) return false;
 		DWORD mode;
 		if (!GetConsoleMode(*handle, &mode)) return false;
@@ -248,7 +258,7 @@ namespace talle::sys
 
 	bool is_raw_mode_enabled()
 	{
-		auto handle = get_current_input_handle();
+		auto handle = win_current_input_handle();
 		if (!handle) return false;
 		DWORD mode;
 		if (!GetConsoleMode(*handle, &mode)) return false;
@@ -257,7 +267,7 @@ namespace talle::sys
 
 	bool clear(clear_type type)
 	{
-		auto handle = get_current_output_handle();
+		auto handle = win_current_output_handle();
 		if (!handle) return false;
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi{};
@@ -362,7 +372,7 @@ namespace talle::sys
 
 	std::optional<event> read_event()
 	{
-		auto handle = get_current_input_handle();
+		auto handle = win_current_input_handle();
 		if (!handle) return std::nullopt;
 
 		INPUT_RECORD record{};

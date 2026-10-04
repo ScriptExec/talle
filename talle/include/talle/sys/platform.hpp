@@ -8,6 +8,16 @@
 
 namespace talle::sys
 {
+	/**
+	* @brief Platform specific handle type.
+	* 
+	* @returns HANDLE on Windows, on Unix-like systems - file descriptor (int).
+	*/
+	using handle = void*;
+
+	std::optional<handle> current_output_handle();
+	std::optional<handle> current_input_handle();
+
 	bool setup();
 	bool set_cursor_visible(bool value);
 	bool set_cursor_pos(position pos);
