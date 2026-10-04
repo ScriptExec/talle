@@ -5,7 +5,7 @@
 #include <tuple>
 #include <talle/core/backend.hpp>
 
-#include <talle/cmd/move_cursor.hpp>
+#include <talle/cmd/set_cursor_pos.hpp>
 #include <talle/cmd/toggle_alternative_buffer.hpp>
 #include <talle/cmd/toggle_mouse_capture.hpp>
 #include <talle/cmd/toggle_cursor_blinking.hpp>
@@ -29,13 +29,13 @@ namespace talle
 	public:
 		terminal& set_cursor_pos(position pos)
 		{
-			backend_.template execute<cmd::move_cursor>(pos);
+			backend_.template execute<cmd::set_cursor_pos>(pos);
 			return *this;
 		}
 
 		terminal& reset_cursor_pos()
 		{
-			backend_.template execute<cmd::move_cursor>();
+			backend_.template execute<cmd::set_cursor_pos>();
 			return *this;
 		}
 

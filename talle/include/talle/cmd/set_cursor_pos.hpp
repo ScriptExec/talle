@@ -5,10 +5,10 @@
 
 namespace talle::cmd
 {
-	struct move_cursor
+	struct set_cursor_pos
 	{
-		move_cursor() = default;
-		move_cursor(position pos) : pos{ pos } {}
+		set_cursor_pos() = default;
+		set_cursor_pos(position pos) : pos{ pos } {}
 
 		position pos;
 
