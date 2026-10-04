@@ -1,6 +1,5 @@
 #pragma once
-#include <cstdint>
-#include <talle/cmd/command.hpp>
+#include <talle/meta/writer.hpp>
 #include <talle/sys/platform.hpp>
 #include <talle/utils/position.hpp>
 

@@ -39,7 +39,7 @@ namespace talle
 
 		void replace(size_t x, size_t y, const std::string& value)
 		{
-			if (x >= width_ || y >= height_) return;
+			if (x >= width_ or y >= height_) return;
 
 			size_t index = y * width_ + x;
 			for (size_t i = 0; i < value.size() and (index + i) < data_.size(); ++i)
@@ -50,7 +50,7 @@ namespace talle
 
 		void insert(size_t x, size_t y, const std::string& value)
 		{
-			//if (x >= width_ || y >= height_) return;
+			//if (x >= width_ or y >= height_) return;
 			size_t index = y * width_ + x;
 			for (size_t i = 0; i < value.size(); ++i)
 			{

@@ -5,19 +5,11 @@
 #include <type_traits>
 
 #include <talle/meta/writer.hpp>
-#include <talle/cmd/command.hpp>
+#include <talle/meta/command.hpp>
 #include <talle/sys/platform.hpp>
 
 namespace talle
 {
-	namespace meta
-	{
-		template<typename command_type>
-		concept has_ansi_support_fn = requires(const command_type& cmd)
-		{
-			{ cmd.is_ansi_supported() } -> std::same_as<bool>;
-		};
-	}
 	template<meta::output_writer writer>
 	class backend
 	{
@@ -34,18 +26,21 @@ namespace talle
 		{
 			auto cmd = command{ std::forward<arguments>(args)... };
 #ifdef _WIN32
-			bool is_ansi_supported = true;
-			if constexpr (meta::has_ansi_support_fn<command>)
+			bool is_ansi_supported = has_ansi_support();
+			if constexpr (meta::command_has_ansi_support_fn<command>)
 			{
 				is_ansi_supported = cmd.is_ansi_supported();
 			}
-			if (meta::has_ansi_support_fn<command> and is_ansi_supported)
+			if (is_ansi_supported)
 			{
 				cmd.write_ansi(writer_.get());
 			}
 			else
 			{
-				cmd.call_winapi();
+				if constexpr (meta::command_has_winapi_fn<command>)
+				{
+					cmd.call_winapi();
+				}
 			}
 #else
 			cmd.write_ansi(writer_.get());
