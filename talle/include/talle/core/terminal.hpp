@@ -11,6 +11,7 @@
 #include <talle/cmd/toggle_cursor_blinking.hpp>
 #include <talle/cmd/clear.hpp>
 #include <talle/cmd/set_cursor_visible.hpp>
+#include <talle/cmd/set_cursor_style.hpp>
 #include <talle/cmd/set_title.hpp>
 
 namespace talle
@@ -42,6 +43,17 @@ namespace talle
 		{
 			backend_.template execute<cmd::set_cursor_visible>(value);
 			return *this;
+		}
+
+		terminal& set_cursor_style(cursor_style style)
+		{
+			backend_.template execute<cmd::set_cursor_style>(style);
+			return *this;
+		}
+
+		terminal& reset_cursor_style()
+		{
+			return set_cursor_style(cursor_style::user_default);
 		}
 
 		terminal& set_title(const std::string& value)
