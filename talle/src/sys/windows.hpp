@@ -16,7 +16,7 @@
 
 namespace talle::sys
 {
-	std::optional<handle> win_current_output_handle()
+	std::optional<HANDLE> win_current_output_handle()
 	{
 		HANDLE handle = CreateFile
 		(
@@ -28,7 +28,7 @@ namespace talle::sys
 		return handle;
 	}
 
-	std::optional<handle> win_current_input_handle()
+	std::optional<HANDLE> win_current_input_handle()
 	{
 		HANDLE handle = CreateFile
 		(

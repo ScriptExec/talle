@@ -11,7 +11,7 @@ namespace talle::sys
 	/**
 	* @brief Platform specific handle type.
 	* 
-	* @returns HANDLE on Windows, on Unix-like systems - file descriptor (int).
+	* HANDLE on Windows, on Unix-like systems - file descriptor (int).
 	*/
 	using handle = void*;
 
