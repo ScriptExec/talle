@@ -38,7 +38,7 @@ target_include_directories(${PROJECT_NAME}
 		"${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-option(BUILD_EXAMPLES "Should term usage examples be built" ON)
-if(BUILD_EXAMPLES)
+option(TALLE_BUILD_EXAMPLES "Should term usage examples be built" ON)
+if(TALLE_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()

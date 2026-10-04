@@ -32,3 +32,13 @@ and replace `<SYSTEM>` with a value from:
 - windows
 - linux
 - macos
+
+## CMake Projects
+If your project uses CMake, you can add the following lines to your CMakeLists.txt, to link against the library:
+```cmake
+# You can optionally provide these options:
+set(TALLE_BUILD_EXAMPLES OFF) # default: ON
+
+add_subdirectory(path/to/talle)
+target_link_libraries(${PROJECT_NAME} PRIVATE talle)
+```
