@@ -28,11 +28,6 @@ namespace talle::cmd
 		{
 			sys::set_cursor_visible(value);
 		}
-
-		bool is_ansi_supported() const
-		{
-			return true;
-		}
 #endif
 	};
 }

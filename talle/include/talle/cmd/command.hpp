@@ -11,7 +11,6 @@ namespace talle::meta
 		{ cmd.template write_ansi<writer>(out) } -> std::same_as<void>;
 #ifdef _WIN32
 		{ cmd.call_winapi() } -> std::same_as<void>;
-		{ cmd.is_ansi_supported() } -> std::same_as<bool>;
 #endif
 	};
 }

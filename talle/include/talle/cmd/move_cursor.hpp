@@ -24,11 +24,6 @@ namespace talle::cmd
 		{
 			sys::set_cursor_pos(pos);
 		}
-
-		bool is_ansi_supported() const
-		{
-			return true;
-		}
 #endif
 	};
 }

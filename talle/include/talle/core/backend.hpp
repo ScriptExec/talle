@@ -1,6 +1,6 @@
 #pragma once
-#include <concepts>
 #include <ostream>
+#include <concepts>
 #include <functional>
 #include <type_traits>
 
@@ -10,6 +10,14 @@
 
 namespace talle
 {
+	namespace meta
+	{
+		template<typename command_type>
+		concept has_ansi_support_fn = requires(const command_type& cmd)
+		{
+			{ cmd.is_ansi_supported() } -> std::same_as<bool>;
+		};
+	}
 	template<meta::output_writer writer>
 	class backend
 	{
@@ -26,7 +34,12 @@ namespace talle
 		{
 			auto cmd = command{ std::forward<arguments>(args)... };
 #ifdef _WIN32
-			if (has_ansi_support() and cmd.is_ansi_supported())
+			bool is_ansi_supported = true;
+			if constexpr (meta::has_ansi_support_fn<command>)
+			{
+				is_ansi_supported = cmd.is_ansi_supported();
+			}
+			if (meta::has_ansi_support_fn<command> and is_ansi_supported)
 			{
 				cmd.write_ansi(writer_.get());
 			}

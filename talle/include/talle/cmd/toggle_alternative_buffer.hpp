@@ -28,11 +28,6 @@ namespace talle::cmd
 		{
 			sys::toggle_alternative_buffer(value);
 		}
-
-		bool is_ansi_supported() const
-		{
-			return true;
-		}
 #endif
 	};
 }
