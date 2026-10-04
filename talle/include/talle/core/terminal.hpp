@@ -8,6 +8,7 @@
 #include <talle/cmd/move_cursor.hpp>
 #include <talle/cmd/toggle_alternative_buffer.hpp>
 #include <talle/cmd/toggle_mouse_capture.hpp>
+#include <talle/cmd/toggle_cursor_blinking.hpp>
 #include <talle/cmd/clear.hpp>
 #include <talle/cmd/set_cursor_visible.hpp>
 #include <talle/cmd/set_title.hpp>
@@ -46,6 +47,12 @@ namespace talle
 		terminal& set_title(const std::string& value)
 		{
 			backend_.template execute<cmd::set_title>(value);
+			return *this;
+		}
+
+		terminal& enable_cursor_blinking(bool value)
+		{
+			backend_.template execute<cmd::toggle_cursor_blinking>(value);
 			return *this;
 		}
 
