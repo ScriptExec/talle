@@ -1,10 +1,10 @@
 ﻿project("talle")
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS 
-	"${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/src/*.cpp"
-	"${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/src/*.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
 )
 file(GLOB_RECURSE INCLUDE_FILES CONFIGURE_DEPENDS
-	"${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/include/*.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
 add_library(${PROJECT_NAME} STATIC)
 target_sources(${PROJECT_NAME}
