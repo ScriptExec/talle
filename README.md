@@ -42,3 +42,6 @@ set(TALLE_BUILD_EXAMPLES OFF) # default: ON
 add_subdirectory(path/to/talle)
 target_link_libraries(${PROJECT_NAME} PRIVATE talle)
 ```
+
+## Examples
+For examples, refer to the [examples](./examples) directory in the repository.

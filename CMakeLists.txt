@@ -7,3 +7,8 @@ endif()
 
 project("talle")
 add_subdirectory("talle")
+
+option(TALLE_BUILD_EXAMPLES "Should term usage examples be built" ON)
+if(TALLE_BUILD_EXAMPLES)
+    add_subdirectory("examples")
+endif()
