@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <cstdio>
 #include <cstdint>
 #include <optional>
@@ -66,6 +67,11 @@ namespace talle::sys
 	}
 
 	bool set_cursor_pos(position pos)
+	{
+		return false;
+	}
+
+	bool set_title(const std::string& title)
 	{
 		return false;
 	}

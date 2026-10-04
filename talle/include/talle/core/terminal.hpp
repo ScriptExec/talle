@@ -10,6 +10,7 @@
 #include <talle/cmd/toggle_mouse_capture.hpp>
 #include <talle/cmd/clear.hpp>
 #include <talle/cmd/set_cursor_visible.hpp>
+#include <talle/cmd/set_title.hpp>
 
 namespace talle
 {
@@ -39,6 +40,12 @@ namespace talle
 		terminal& set_cursor_visible(bool value)
 		{
 			backend_.template execute<cmd::set_cursor_visible>(value);
+			return *this;
+		}
+
+		terminal& set_title(const std::string& value)
+		{
+			backend_.template execute<cmd::set_title>(value);
 			return *this;
 		}
 

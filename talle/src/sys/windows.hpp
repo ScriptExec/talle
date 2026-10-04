@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <optional>
+#include <string>
 
 #define VC_EXTRALEAN
 #define NOMINMAX
@@ -11,6 +12,7 @@
 #include <talle/event/resize_event.hpp>
 #include <talle/input/key.hpp>
 #include <talle/event/key_event.hpp>
+#include <codecvt>
 
 namespace talle::sys
 {
@@ -69,6 +71,13 @@ namespace talle::sys
 		coord.X = pos.x;
 		coord.Y = pos.y;
 		return SetConsoleCursorPosition(*handle, coord);
+	}
+
+	bool set_title(const std::string& title)
+	{
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		std::wstring wide_title = converter.from_bytes(title);
+		return SetConsoleTitleW(wide_title.c_str());
 	}
 
 	bool toggle_alternative_buffer(bool value)
