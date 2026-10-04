@@ -40,12 +40,12 @@ namespace talle::sys
 		return handle;
 	}
 
-	std::optional<void*> current_output_handle()
+	std::optional<handle> current_output_handle()
 	{
 		return win_current_output_handle();
 	}
 
-	std::optional<void*> current_input_handle()
+	std::optional<handle> current_input_handle()
 	{
 		return win_current_input_handle();
 	}
