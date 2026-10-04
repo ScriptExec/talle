@@ -16,6 +16,27 @@
 
 namespace talle::sys
 {
+	std::optional<handle> stdout_handle()
+	{
+		HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (handle == INVALID_HANDLE_VALUE) return std::nullopt;
+		return handle;
+	}
+
+	std::optional<handle> stderr_handle()
+	{
+		HANDLE handle = GetStdHandle(STD_ERROR_HANDLE);
+		if (handle == INVALID_HANDLE_VALUE) return std::nullopt;
+		return handle;
+	}
+
+	std::optional<handle> stdin_handle()
+	{
+		HANDLE handle = GetStdHandle(STD_INPUT_HANDLE);
+		if (handle == INVALID_HANDLE_VALUE) return std::nullopt;
+		return handle;
+	}
+
 	std::optional<HANDLE> win_current_output_handle()
 	{
 		HANDLE handle = CreateFile

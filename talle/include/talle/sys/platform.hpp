@@ -15,6 +15,10 @@ namespace talle::sys
 	*/
 	using handle = void*;
 
+	std::optional<handle> stdout_handle();
+	std::optional<handle> stderr_handle();
+	std::optional<handle> stdin_handle();
+
 	std::optional<handle> current_output_handle();
 	std::optional<handle> current_input_handle();
 

@@ -17,6 +17,21 @@
 
 namespace talle::sys
 {
+	std::optional<handle> stdout_handle()
+	{
+		return reinterpret_cast<handle>(STDOUT_FILENO);
+	}
+
+	std::optional<handle> stderr_handle()
+	{
+		return reinterpret_cast<handle>(STDERR_FILENO);
+	}
+
+	std::optional<handle> stdin_handle()
+	{
+		return reinterpret_cast<handle>(STDIN_FILENO);
+	}
+
 	std::optional<handle> current_output_handle()
 	{
 		int fd = open("/dev/tty", O_WRONLY);
