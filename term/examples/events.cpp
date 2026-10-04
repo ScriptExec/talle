@@ -53,14 +53,14 @@ int main(int argc, char* argv[])
 {
 	using namespace term;
 
-	auto backend = term::backend{ std::cout };
-	auto term = term::terminal{ backend };
-	backend.set_raw_mode(true);
+	auto back = backend{ std::cout };
+	auto term = terminal{ back };
+	back.set_raw_mode(true);
 	term.enable_mouse_capture(true);
 	term.set_cursor_visible(false);
 	/*
 	term.write("Hello World!");
-	auto cpos = backend.get_cursor_pos().value();
+	auto cpos = back.get_cursor_pos().value();
 	term.set_cursor_visible(false)
 		.enable_alternative_buffer(true);
 	term.reset_cursor_pos()
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 
 	while (true)
 	{
-		auto cpos = backend.get_cursor_pos().value();
+		auto cpos = back.get_cursor_pos().value();
 		auto event = term.read_event();
 		std::string message;
 		if (event.has_value())
@@ -84,15 +84,37 @@ int main(int argc, char* argv[])
 				message = "Key (" + std::string(event_key->type == key_event_type::press ? "Press" : (event_key->type == key_event_type::repeat ? "Repeat" : "Release")) + "): ";
 				if (event_key->key.is<key::code>())
 				{
-					message += std::to_string(static_cast<int>(event_key->key.get<key::code>()));
+					auto c = event_key->key.get<key::code>();
+					switch (c)
+					{
+						case key::code::backspace: message += "Backspace"; break;
+						case key::code::enter: message += "Enter"; break;
+						case key::code::left: message += "Left"; break;
+						case key::code::right: message += "Right"; break;
+						case key::code::up: message += "Up"; break;
+						case key::code::down: message += "Down"; break;
+						case key::code::home: message += "Home"; break;
+						case key::code::end: message += "End"; break;
+						case key::code::pageup: message += "PageUp"; break;
+						case key::code::pagedown: message += "PageDown"; break;
+						case key::code::tab: message += "Tab"; break;
+						case key::code::backtab: message += "BackTab"; break;
+						case key::code::delete_: message += "Delete"; break;
+						case key::code::insert: message += "Insert"; break;
+						case key::code::escape: message += "Escape"; break;
+					}
 				}
-				else if (event_key->key.is<key::fn>())
+				else if (auto event_key_fn = event_key->key.try_get<key::fn>())
 				{
-					message += "F" + std::to_string(event_key->key.get<key::fn>().number);
+					message += "F" + std::to_string(event_key_fn->number);
 				}
-				else if (event_key->key.is<key::chr>())
+				else if (auto event_key_chr = event_key->key.try_get<key::chr>())
 				{
-					message += "'" + std::string(1, static_cast<char>(event_key->key.get<key::chr>().c)) + "'";
+					if (event_key_chr->c == 'q' and event_key->modifiers.has(term::key_modifier::ctrl))
+					{
+						return 0;
+					}
+					message += "'" + std::string(1, static_cast<char>(event_key_chr->c)) + "'";
 				}
 				add_key_modifiers(message, event_key->modifiers);
 			}
@@ -146,9 +168,9 @@ int main(int argc, char* argv[])
 
 		if (!message.empty())
 		{
-			term.writeln(message);
-			/*
-			auto cpos = backend.get_cursor_pos().value();
+			//term.writeln(message);
+			
+			auto cpos = back.get_cursor_pos().value();
 			term.reset_cursor_pos()
 				.write(message);
 			auto chars_left = (int)cpos.x - (int)message.size();
@@ -156,11 +178,11 @@ int main(int argc, char* argv[])
 			{
 				term.write(std::string(chars_left, ' '));
 			}
-			*/
+			
 		}
 	}
 	term.set_cursor_visible(true);
 	term.enable_mouse_capture(false);
-	backend.set_raw_mode(false);
+	back.set_raw_mode(false);
 	return 0;
 }
