@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <atomic>
+#include <limits>
 #include <codecvt>
 #include <csignal>
 #include <limits>
@@ -16,13 +17,16 @@
 #include <talle/event/resize_event.hpp>
 #include <talle/input/key.hpp>
 #include <talle/event/key_event.hpp>
+#include <talle/style/color.hpp>
+#include <talle/style/color_part.hpp>
 
 namespace talle::sys
 {
 	struct platform_data
 	{
-		uint32_t saved_console_in_mode{};
-		uint32_t saved_console_out_mode{};
+		uint32_t original_console_in_mode{};
+		uint32_t original_console_out_mode{};
+		std::atomic<uint32_t> original_console_color{ std::numeric_limits<uint32_t>::max() };
 		std::atomic<uint32_t> saved_cursor_pos{ 0 };
 	} data;
 
@@ -89,7 +93,7 @@ namespace talle::sys
 			DWORD mode;
 			if (GetConsoleMode(*out_handle, &mode))
 			{
-				data.saved_console_out_mode = mode;
+				data.original_console_out_mode = mode;
 			}
 		}
 		auto in_handle = win_current_input_handle();
@@ -98,7 +102,7 @@ namespace talle::sys
 			DWORD mode;
 			if (GetConsoleMode(*in_handle, &mode))
 			{
-				data.saved_console_in_mode = mode;
+				data.original_console_in_mode = mode;
 			}
 		}
 	}
@@ -108,12 +112,12 @@ namespace talle::sys
 		auto out_handle = win_current_output_handle();
 		if (out_handle.has_value())
 		{
-			SetConsoleMode(*out_handle, data.saved_console_out_mode);
+			SetConsoleMode(*out_handle, data.original_console_out_mode);
 		}
 		auto in_handle = win_current_input_handle();
 		if (in_handle.has_value())
 		{
-			SetConsoleMode(*in_handle, data.saved_console_in_mode);
+			SetConsoleMode(*in_handle, data.original_console_in_mode);
 		}
 	}
 
@@ -424,7 +428,7 @@ namespace talle::sys
 		if (!GetConsoleMode(*handle, &mode)) return false;
 		if (value)
 		{
-			data.saved_console_in_mode = mode;
+			data.original_console_in_mode = mode;
 			mode |= ENABLE_EXTENDED_FLAGS;
 			mode &= ~ENABLE_QUICK_EDIT_MODE;
 			mode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT);
@@ -436,7 +440,7 @@ namespace talle::sys
 			mode |= ENABLE_QUICK_EDIT_MODE;
 			mode |= (ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT);
 			*/
-			mode = data.saved_console_in_mode;
+			mode = data.original_console_in_mode;
 		}
 		return SetConsoleMode(*handle, mode) != 0;
 	}
@@ -666,5 +670,173 @@ namespace talle::sys
 			break;
 			default: return std::nullopt;
 		}
+	}
+
+	bool init_color()
+	{
+		auto saved_mode = data.original_console_color.load(std::memory_order_relaxed);
+		if (saved_mode == std::numeric_limits<uint32_t>::max())
+		{
+			auto handle = win_current_output_handle();
+			if (!handle) return false;
+			CONSOLE_SCREEN_BUFFER_INFO csbi{};
+			if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return false;
+			data.original_console_color.store(csbi.wAttributes, std::memory_order_relaxed);
+		}
+		return true;
+	}
+
+	uint16_t get_original_console_color()
+	{
+		return static_cast<uint16_t>(data.original_console_color.load(std::memory_order_relaxed));
+	}
+
+	constexpr uint16_t foreground_mask = FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+	constexpr uint16_t background_mask = BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+
+	constexpr uint16_t foreground_mask_no_intens = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+	constexpr uint16_t background_mask_no_intens = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+
+	uint16_t map_fg_color(const style::color& color)
+	{
+		if (auto base_col = color.try_get<style::color::base>())
+		{
+			switch (*base_col)
+			{
+				case style::color::base::black: return 0;
+				case style::color::base::dark_grey: return FOREGROUND_INTENSITY | 0;
+				case style::color::base::red: return FOREGROUND_INTENSITY | FOREGROUND_RED;
+				case style::color::base::dark_red: return FOREGROUND_RED;
+				case style::color::base::green: return FOREGROUND_INTENSITY | FOREGROUND_GREEN;
+				case style::color::base::dark_green: return FOREGROUND_GREEN;
+				case style::color::base::yellow: return FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN;
+				case style::color::base::dark_yellow: return FOREGROUND_RED | FOREGROUND_GREEN;
+				case style::color::base::blue: return FOREGROUND_INTENSITY | FOREGROUND_BLUE;
+				case style::color::base::dark_blue: return FOREGROUND_BLUE;
+				case style::color::base::magenta: return FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE;
+				case style::color::base::dark_magenta: return FOREGROUND_RED | FOREGROUND_BLUE;
+				case style::color::base::cyan: return FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE;
+				case style::color::base::dark_cyan: return FOREGROUND_GREEN | FOREGROUND_BLUE;
+				case style::color::base::white: return FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+				case style::color::base::grey: return FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+				case style::color::base::reset:
+				{
+					auto original_color = get_original_console_color();
+					return static_cast<uint16_t>(original_color & (~background_mask));
+				}
+				break;
+				default: return 0;
+			}
+		}
+		//call_winapi handles rgb and ansi
+		return 0;
+	}
+
+	uint16_t map_bg_color(const style::color& color)
+	{
+		if (auto base_col = color.try_get<style::color::base>())
+		{
+			switch (*base_col)
+			{
+				case style::color::base::black: return 0;
+				case style::color::base::dark_grey: return BACKGROUND_INTENSITY | 0;
+				case style::color::base::red: return BACKGROUND_INTENSITY | BACKGROUND_RED;
+				case style::color::base::dark_red: return BACKGROUND_RED;
+				case style::color::base::green: return BACKGROUND_INTENSITY | BACKGROUND_GREEN;
+				case style::color::base::dark_green: return BACKGROUND_GREEN;
+				case style::color::base::yellow: return BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN;
+				case style::color::base::dark_yellow: return BACKGROUND_RED | BACKGROUND_GREEN;
+				case style::color::base::blue: return BACKGROUND_INTENSITY | BACKGROUND_BLUE;
+				case style::color::base::dark_blue: return BACKGROUND_BLUE;
+				case style::color::base::magenta: return BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_BLUE;
+				case style::color::base::dark_magenta: return BACKGROUND_RED | BACKGROUND_BLUE;
+				case style::color::base::cyan: return BACKGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_BLUE;
+				case style::color::base::dark_cyan: return BACKGROUND_GREEN | BACKGROUND_BLUE;
+				case style::color::base::white: return BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+				case style::color::base::grey: return BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+				case style::color::base::reset:
+				{
+					auto original_color = get_original_console_color();
+					return static_cast<uint16_t>(original_color & (~foreground_mask));
+				}
+				break;
+				default: return 0;
+			}
+		}
+		//call_winapi handles rgb and ansi
+		return 0;
+	}
+
+	uint16_t map_ul_color(const style::color& color)
+	{
+		//not supported
+		return 0;
+	}
+
+	uint16_t map_color_part_color(const style::color_part& part)
+	{
+		if (auto fg = part.try_get<style::color_part::foreground>())
+		{
+			return map_fg_color(fg->value);
+		}
+		else if (auto bg = part.try_get<style::color_part::background>())
+		{
+			return map_bg_color(bg->value);
+		}
+		else if (auto ul = part.try_get<style::color_part::underline>())
+		{
+			return map_ul_color(ul->value);
+		}
+		return 0;
+	}
+
+	bool set_foreground_color(const style::color& color)
+	{
+		init_color();
+
+		auto color_u16 = map_fg_color(color);
+		auto handle = win_current_output_handle();
+		if (!handle) return false;
+		CONSOLE_SCREEN_BUFFER_INFO csbi{};
+		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return false;
+
+		auto color_bg = csbi.wAttributes & background_mask_no_intens;
+		auto color_new = color_u16 | color_bg;
+
+		if ((csbi.wAttributes & FOREGROUND_INTENSITY) != 0)
+		{
+			color_new |= FOREGROUND_INTENSITY;
+		}
+
+		if (!SetConsoleTextAttribute(*handle, color_new)) return false;
+		return true;
+	}
+
+	bool set_background_color(const style::color& color)
+	{
+		init_color();
+
+		auto color_u16 = map_bg_color(color);
+		auto handle = win_current_output_handle();
+		if (!handle) return false;
+		CONSOLE_SCREEN_BUFFER_INFO csbi{};
+		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return false;
+
+		auto color_bg = csbi.wAttributes & foreground_mask_no_intens;
+		auto color_new = color_u16 | color_bg;
+
+		if ((csbi.wAttributes & BACKGROUND_INTENSITY) != 0)
+		{
+			color_new |= BACKGROUND_INTENSITY;
+		}
+
+		if (!SetConsoleTextAttribute(*handle, color_new)) return false;
+		return true;
+	}
+
+	bool set_underline_color(const style::color& color)
+	{
+		//not supported
+		return false;
 	}
 }

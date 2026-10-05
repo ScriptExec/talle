@@ -15,6 +15,10 @@
 #include <talle/cmd/clear.hpp>
 #include <talle/cmd/set_cursor_visible.hpp>
 #include <talle/cmd/set_cursor_style.hpp>
+#include <talle/cmd/set_foreground_color.hpp>
+#include <talle/cmd/set_background_color.hpp>
+#include <talle/cmd/set_underline_color.hpp>
+#include <talle/cmd/set_color.hpp>
 #include <talle/cmd/set_title.hpp>
 
 namespace talle
@@ -111,6 +115,48 @@ namespace talle
 			return *this;
 		}
 
+		terminal& set_foreground_color(const style::color& color)
+		{
+			backend_.template execute<cmd::set_foreground_color>(color);
+			return *this;
+		}
+
+		terminal& reset_foreground_color()
+		{
+			backend_.template execute<cmd::set_foreground_color>(style::color::reset());
+			return *this;
+		}
+
+		terminal& set_background_color(const style::color& color)
+		{
+			backend_.template execute<cmd::set_background_color>(color);
+			return *this;
+		}
+
+		terminal& reset_background_color()
+		{
+			backend_.template execute<cmd::set_background_color>(style::color::reset());
+			return *this;
+		}
+
+		terminal& set_underline_color(const style::color& color)
+		{
+			backend_.template execute<cmd::set_underline_color>(color);
+			return *this;
+		}
+
+		terminal& reset_underline_color()
+		{
+			backend_.template execute<cmd::set_underline_color>(style::color::reset());
+			return *this;
+		}
+
+		terminal& set_color(const style::color_part& color)
+		{
+			backend_.template execute<cmd::set_color>(color);
+			return *this;
+		}
+
 		template<typename... arguments> requires meta::writeable<writer_type, arguments...>
 		terminal& write(arguments&&... args)
 		{
@@ -122,6 +168,15 @@ namespace talle
 		terminal& writeln(arguments&&... args)
 		{
 			backend_.writeln(std::forward<arguments>(args)...);
+			return *this;
+		}
+
+		terminal& newline(size_t count = 1)
+		{
+			for (size_t i = 0; i < count; ++i)
+			{
+				writeln();
+			}
 			return *this;
 		}
 

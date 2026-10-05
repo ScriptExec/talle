@@ -5,6 +5,7 @@
 #include <talle/utils/size.hpp>
 #include <talle/core/clear_type.hpp>
 #include <talle/event/event.hpp>
+#include <talle/style/color.hpp>
 #include <string>
 
 namespace talle::sys
@@ -43,4 +44,10 @@ namespace talle::sys
 
 	std::optional<event> read_event();
 
+	bool is_color_enabled();
+	bool set_color_enabled(bool value);
+
+	bool set_foreground_color(const style::color& color);
+	bool set_background_color(const style::color& color);
+	bool set_underline_color(const style::color& color);
 }

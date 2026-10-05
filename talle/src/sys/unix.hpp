@@ -15,6 +15,7 @@
 
 #include <talle/utils/position.hpp>
 #include <talle/event/event.hpp>
+#include <talle/style/color.hpp>
 
 namespace talle::sys
 {
@@ -230,5 +231,20 @@ namespace talle::sys
 	std::optional<event> read_event()
 	{
 		return std::nullopt;
+	}
+
+	bool set_foreground_color(const style::color& color)
+	{
+		return false;
+	}
+
+	bool set_background_color(const style::color& color)
+	{
+		return false;
+	}
+
+	bool set_underline_color(const style::color& color)
+	{
+		return false;
 	}
 }
