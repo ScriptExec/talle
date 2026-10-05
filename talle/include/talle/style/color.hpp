@@ -41,6 +41,9 @@ namespace talle::style
 			uint8_t b{};
 		};
 
+		color(const base& color) : data_{ color } {}
+		color(const ansi& color) : data_{ color } {}
+		color(const rgb& color) : data_{ color } {}
 		color(const std::variant<base, ansi, rgb>& data) : data_{ data } {}
 		color(const color& other) = default;
 		color(color&& other) noexcept = default;
@@ -129,6 +132,24 @@ namespace talle::style
 		color& operator=(const std::variant<base, ansi, rgb>& data)
 		{
 			data_ = data;
+			return *this;
+		}
+
+		color& operator=(const base& color)
+		{
+			data_ = color;
+			return *this;
+		}
+
+		color& operator=(const ansi& color)
+		{
+			data_ = color;
+			return *this;
+		}
+
+		color& operator=(const rgb& color)
+		{
+			data_ = color;
 			return *this;
 		}
 
