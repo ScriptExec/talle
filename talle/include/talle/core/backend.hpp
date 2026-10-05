@@ -7,6 +7,7 @@
 #include <talle/meta/writer.hpp>
 #include <talle/meta/command.hpp>
 #include <talle/sys/platform.hpp>
+#include <talle/utils/env.hpp>
 
 namespace talle
 {
@@ -80,14 +81,9 @@ namespace talle
 			{
 #ifdef _WIN32
 				if (sys::setup()) return true;
-#ifdef _MSC_VER
-				char* term = nullptr;
-				std::size_t required_size = 0;
-				if (_dupenv_s(&term, &required_size, "TERM") != 0) term = nullptr;
-#else
-				const char* term = std::getenv("TERM");
-#endif
-				return term != nullptr and std::strcmp(term, "dumb") != 0;
+
+				auto term = env::get("TERM");
+				return term.has_value() and term.value() != "dumb";
 #else
 				return true;
 #endif
