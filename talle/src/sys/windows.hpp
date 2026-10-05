@@ -3,6 +3,9 @@
 #include <optional>
 #include <string>
 #include <atomic>
+#include <codecvt>
+#include <csignal>
+#include <limits>
 
 #define VC_EXTRALEAN
 #define NOMINMAX
@@ -13,12 +16,13 @@
 #include <talle/event/resize_event.hpp>
 #include <talle/input/key.hpp>
 #include <talle/event/key_event.hpp>
-#include <codecvt>
 
 namespace talle::sys
 {
 	struct platform_data
 	{
+		uint32_t saved_console_in_mode{};
+		uint32_t saved_console_out_mode{};
 		std::atomic<uint32_t> saved_cursor_pos{ 0 };
 	} data;
 
@@ -77,13 +81,73 @@ namespace talle::sys
 		return win_current_input_handle();
 	}
 
+	void setup_data()
+	{
+		auto out_handle = win_current_output_handle();
+		if (out_handle)
+		{
+			DWORD mode;
+			if (GetConsoleMode(*out_handle, &mode))
+			{
+				data.saved_console_out_mode = mode;
+			}
+		}
+		auto in_handle = win_current_input_handle();
+		if (in_handle)
+		{
+			DWORD mode;
+			if (GetConsoleMode(*in_handle, &mode))
+			{
+				data.saved_console_in_mode = mode;
+			}
+		}
+	}
+
+	void restore_data()
+	{
+		auto out_handle = win_current_output_handle();
+		if (out_handle.has_value())
+		{
+			SetConsoleMode(*out_handle, data.saved_console_out_mode);
+		}
+		auto in_handle = win_current_input_handle();
+		if (in_handle.has_value())
+		{
+			SetConsoleMode(*in_handle, data.saved_console_in_mode);
+		}
+	}
+
+	void signal_handler(int signal)
+	{
+		if (signal == SIGINT or signal == SIGTERM or signal == SIGABRT)
+		{
+			restore_data();
+			std::exit(0);
+		}
+	}
+
 	bool setup()
 	{
+		setup_data();
+
 		auto handle = win_current_output_handle();
 		if (!handle) return false;
 		DWORD mode;
 		if (!SetConsoleOutputCP(CP_UTF8)) return false;
 		if (!GetConsoleMode(*handle, &mode)) return false;
+		std::signal(SIGINT, signal_handler);
+		std::signal(SIGABRT, signal_handler);
+		std::signal(SIGTERM, signal_handler);
+		mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		return SetConsoleMode(*handle, mode);
+	}
+		{
+			auto handle = win_current_output_handle();
+			if (handle)
+			{
+				SetConsoleMode(*handle, data.saved_console_mode);
+			}
+		});
 		mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 		return SetConsoleMode(*handle, mode);
 	}
@@ -284,15 +348,19 @@ namespace talle::sys
 		if (!GetConsoleMode(*handle, &mode)) return false;
 		if (value)
 		{
+			data.saved_console_in_mode = mode;
 			mode |= ENABLE_EXTENDED_FLAGS;
 			mode &= ~ENABLE_QUICK_EDIT_MODE;
 			mode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT);
 		}
 		else
 		{
+			/*
 			mode |= ENABLE_EXTENDED_FLAGS;
 			mode |= ENABLE_QUICK_EDIT_MODE;
 			mode |= (ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT);
+			*/
+			mode = data.saved_console_in_mode;
 		}
 		return SetConsoleMode(*handle, mode) != 0;
 	}
