@@ -5,6 +5,7 @@
 #include <optional>
 #include <iostream>
 #include <csignal>
+#include <limits>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -61,7 +62,7 @@ namespace talle::sys
 		return false;
 	}
 
-	std::optional<size> get_size()
+	std::optional<size> get_window_size()
 	{
 		auto handle = current_output_handle();
 		if (!handle.has_value())
@@ -73,6 +74,46 @@ namespace talle::sys
 		auto wsize = winsize{};
 		if (ioctl(fd, TIOCGWINSZ, &wsize) == -1) return std::nullopt;
 		return size{ static_cast<uint16_t>(wsize.ws_col), static_cast<uint16_t>(wsize.ws_row) };
+	}
+
+	std::optional<uint16_t> tput_value(const char* value)
+	{
+		std::string command = "tput ";
+		command += value;
+
+		FILE* pipe = popen(command.c_str(), "r");
+		if (!pipe) return std::nullopt;
+
+		char buffer[64]{};
+
+		if (!std::fgets(buffer, sizeof(buffer), pipe))
+		{
+			pclose(pipe);
+			return std::nullopt;
+		}
+
+		int status = pclose(pipe);
+		if (status != 0) return std::nullopt;
+
+		char* end = nullptr;
+		errno = 0;
+
+		long result = std::strtol(buffer, &end, 10);
+
+		if (errno != 0 or end == buffer or result < 0 or result > std::numeric_limits<uint16_t>::max()) return std::nullopt;
+		return static_cast<uint16_t>(result);
+	}
+
+	std::optional<size> get_size()
+	{
+		auto size_opt = get_window_size();
+		if (size_opt.has_value()) return size_opt;
+
+		auto width = tput_value("cols");
+		auto height = tput_value("lines");
+
+		if (!width.has_value() or !height.has_value()) return std::nullopt;
+		return size{ *width, *height };
 	}
 
 	bool toggle_alternative_buffer(bool value)
