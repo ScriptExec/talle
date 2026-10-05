@@ -141,15 +141,91 @@ namespace talle::sys
 		mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 		return SetConsoleMode(*handle, mode);
 	}
+
+	bool set_size(size new_size)
+	{
+		//terminal size too small
+		if (new_size.width <= 1 or new_size.height <= 1) return false;
+
+		auto handle = win_current_output_handle();
+		if (!handle) return false;
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return false;
+
+		bool resize_buffer = false;
+
+		auto width = static_cast<int16_t>(new_size.width);
+		auto height = static_cast<int16_t>(new_size.height);
+
+		auto window_rect = csbi.srWindow;
+		auto buffer_size = csbi.dwSize;
+
+		COORD new_size_coord = buffer_size;
+
+
+		if (buffer_size.X < width or window_rect.Left + width)
 		{
-			auto handle = win_current_output_handle();
-			if (handle)
+			if (window_rect.Left >= std::numeric_limits<int16_t>::max() - width)
 			{
-				SetConsoleMode(*handle, data.saved_console_mode);
+				//terminal width is too large
+				return false;
 			}
-		});
-		mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-		return SetConsoleMode(*handle, mode);
+			new_size_coord.X = window_rect.Left + width;
+			resize_buffer = true;
+		}
+
+		if (buffer_size.Y < window_rect.Top + height)
+		{
+			if (window_rect.Top >= std::numeric_limits<int16_t>::max() - height)
+			{
+				//terminal height is too large
+				return false;
+			}
+			new_size_coord.Y = window_rect.Top + height;
+			resize_buffer = true;
+		}
+
+		if (resize_buffer)
+		{
+			COORD coord;
+			coord.X = new_size_coord.X - 1;
+			coord.Y = new_size_coord.Y - 1;
+			if (!SetConsoleScreenBufferSize(*handle, coord)) return false;
+		}
+
+		//resizes and preserves the current window position
+		window_rect.Bottom = window_rect.Top + height - 1;
+		window_rect.Right = window_rect.Left + width - 1;
+		if (!SetConsoleWindowInfo(*handle, TRUE, &window_rect)) return false;
+
+		if (resize_buffer)
+		{
+			COORD coord;
+			coord.X = new_size_coord.X - 1;
+			coord.Y = new_size_coord.Y - 1;
+			if (!SetConsoleScreenBufferSize(*handle, coord)) return false;
+		}
+
+		COORD bounds = GetLargestConsoleWindowSize(*handle);
+		if (bounds.X == 0 or bounds.Y == 0) return false;
+
+		if (width > bounds.X or height > bounds.Y)
+		{
+			//terminal width or height is too large
+			return false;
+		}
+		return true;
+	}
+
+	std::optional<size> get_size()
+	{
+		auto handle = win_current_output_handle();
+		if (!handle) return std::nullopt;
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return std::nullopt;
+		uint16_t width = static_cast<uint16_t>(csbi.srWindow.Right - csbi.srWindow.Left + 1);
+		uint16_t height = static_cast<uint16_t>(csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
+		return size{ width, height };
 	}
 
 	bool set_cursor_visible(bool value)

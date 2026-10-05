@@ -5,6 +5,7 @@
 #include <tuple>
 #include <talle/core/backend.hpp>
 
+#include <talle/cmd/set_size.hpp>
 #include <talle/cmd/set_cursor_pos.hpp>
 #include <talle/cmd/save_cursor_pos.hpp>
 #include <talle/cmd/restore_cursor_pos.hpp>
@@ -24,11 +25,21 @@ namespace talle
 	public:
 		using writer_type = typename backend_type::writer_type;
 		terminal(backend_type& backend) : backend_{ backend } {}
+		~terminal()
+		{
+			backend_.flush();
+		}
 
 	private:
 		backend_type& backend_;
 
 	public:
+		terminal& set_size(size new_size)
+		{
+			backend_.template execute<cmd::set_size>(new_size);
+			return *this;
+		}
+
 		terminal& set_cursor_pos(position pos)
 		{
 			backend_.template execute<cmd::set_cursor_pos>(pos);

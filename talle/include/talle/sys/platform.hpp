@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <optional>
 #include <talle/utils/position.hpp>
+#include <talle/utils/size.hpp>
 #include <talle/core/clear_type.hpp>
 #include <talle/event/event.hpp>
 #include <string>
@@ -26,6 +27,8 @@ namespace talle::sys
 	std::optional<handle> current_input_handle();
 
 	bool setup();
+	bool set_size(size new_size);
+	std::optional<size> get_size();
 	bool set_cursor_visible(bool value);
 	bool set_cursor_pos(position pos);
 	bool save_cursor_pos();

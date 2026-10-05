@@ -56,6 +56,25 @@ namespace talle::sys
 		return true;
 	}
 
+	bool set_size(size new_size)
+	{
+		return false;
+	}
+
+	std::optional<size> get_size()
+	{
+		auto handle = current_output_handle();
+		if (!handle.has_value())
+		{
+			handle = stdout_handle();
+		}
+		if (!handle.has_value()) return std::nullopt;
+		auto fd = reinterpret_cast<int>(*handle);
+		auto wsize = winsize{};
+		if (ioctl(fd, TIOCGWINSZ, &wsize) == -1) return std::nullopt;
+		return size{ static_cast<uint16_t>(wsize.ws_col), static_cast<uint16_t>(wsize.ws_row) };
+	}
+
 	bool toggle_alternative_buffer(bool value)
 	{
 		return false;
