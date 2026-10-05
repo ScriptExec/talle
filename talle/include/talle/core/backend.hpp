@@ -95,6 +95,11 @@ namespace talle
 		{
 			return sys::get_cursor_pos();
 		}
+
+		std::optional<size> get_size()
+		{
+			return sys::get_size();
+		}
 	};
 
 	namespace meta

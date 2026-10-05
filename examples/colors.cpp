@@ -4,11 +4,12 @@
 #include <array>
 #include <talle/core/terminal.hpp>
 #include <talle/core/backend.hpp>
+#include <talle/style/hsv.hpp>
+
+using namespace talle;
 
 int main(int argc, char* argv[])
 {
-	using namespace talle;
-
 	auto back = backend{ std::cout };
 	auto term = terminal{ back };
 	term.set_cursor_visible(false);
@@ -20,14 +21,16 @@ int main(int argc, char* argv[])
 			.set_background_color(style::color::ansi(i))
 			.write(std::format("{:>3} ", i))
 			.reset_foreground_color()
-			.reset_background_color();
+			.reset_background_color()
+			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
 	for (size_t i = 0; i <= 7; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:>3} ", i))
-			.reset_foreground_color();
+			.reset_foreground_color()
+			.flush();
 	}
 	term.newline();
 	term.write(std::format("{:<10}", "Intense:"));
@@ -37,14 +40,16 @@ int main(int argc, char* argv[])
 			.set_background_color(style::color::ansi(i))
 			.write(std::format("{:>3} ", i))
 			.reset_foreground_color()
-			.reset_background_color();
+			.reset_background_color()
+			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
 	for (size_t i = 8; i <= 15; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:>3} ", i))
-			.reset_foreground_color();
+			.reset_foreground_color()
+			.flush();
 	}
 
 	term.newline(2).write(std::format("{:<10}", "Grays:"));
@@ -54,14 +59,16 @@ int main(int argc, char* argv[])
 			.set_background_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
 			.reset_foreground_color()
-			.reset_background_color();
+			.reset_background_color()
+			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
 	for (size_t i = 232; i <= 243; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
-			.reset_foreground_color();
+			.reset_foreground_color()
+			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
 	for (size_t i = 244; i <= 255; ++i)
@@ -70,14 +77,16 @@ int main(int argc, char* argv[])
 			.set_background_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
 			.reset_foreground_color()
-			.reset_background_color();
+			.reset_background_color()
+			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
 	for (size_t i = 244; i <= 255; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
-			.reset_foreground_color();
+			.reset_foreground_color()
+			.flush();
 	}
 	term.newline(2).write(std::format("{:<10}", "Rest:"));
 	for (size_t e = 0, i = 16; i <= 231; ++i)
@@ -86,7 +95,9 @@ int main(int argc, char* argv[])
 			.set_background_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
 			.reset_foreground_color()
-			.reset_background_color();
+			.reset_background_color()
+			.flush();
+
 		if (++e == 12 and i != 231)
 		{
 			e = 0;
@@ -99,7 +110,9 @@ int main(int argc, char* argv[])
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
-			.reset_foreground_color();
+			.reset_foreground_color()
+			.flush();
+
 		if (++e == 12 and i != 231)
 		{
 			e = 0;
@@ -132,7 +145,8 @@ int main(int argc, char* argv[])
 					.set_background_color(style::color::ansi(i))
 					.write(std::format(" {:02X}{:02X}{:02X} ", red, green, blue))
 					.reset_foreground_color()
-					.reset_background_color();
+					.reset_background_color()
+					.flush();
 
 				if (++rgb_col == rgb_cols)
 				{
@@ -168,6 +182,32 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
+	}
+
+	auto header = std::format("{:<10}", "Rainbow:");
+	auto width = term.size().value_or({ 120, 0}).width - header.size() - 1;
+	term.newline(2).write(header);
+	for (size_t w = 0; w < width; ++w)
+	{
+		const auto color = style::hsv_to_rgb({ static_cast<float>((360.0 / width) * w), 1.0, 1.0 });
+
+		term.set_background_color(color)
+			.set_foreground_color(style::color::base::black)
+			.write(" ")
+			.reset_foreground_color()
+			.reset_background_color()
+			.flush();
+	}
+
+	term.newline().write(std::string(10, ' '));
+	for (size_t w = 0; w < width; ++w)
+	{
+		const auto color = style::hsv_to_rgb({ static_cast<float>((360.0 / width) * w), 1.0, 1.0 });
+
+		term.set_foreground_color(color)
+			.write(static_cast<char>('a' + (w % ('z' - 'a'))))
+			.reset_foreground_color()
+			.flush();
 	}
 
 	term.set_cursor_visible(true);

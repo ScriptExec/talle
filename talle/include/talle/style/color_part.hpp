@@ -28,7 +28,7 @@ namespace talle::style
 
 			friend std::ostream& operator<<(std::ostream& out, const foreground& col)
 			{
-				return out << "\x1b[" << col.to_string() << "m";
+				return out << "\x1b[" + col.to_string() + "m";
 			}
 		};
 
@@ -49,7 +49,7 @@ namespace talle::style
 
 			friend std::ostream& operator<<(std::ostream& out, const background& col)
 			{
-				return out << "\x1b[" << col.to_string() << "m";
+				return out << "\x1b[" + col.to_string() + "m";
 			}
 		};
 
@@ -70,7 +70,7 @@ namespace talle::style
 
 			friend std::ostream& operator<<(std::ostream& out, const underline& col)
 			{
-				return out << "\x1b[" << col.to_string() << "m";
+				return out << "\x1b[" + col.to_string() + "m";
 			}
 		};
 

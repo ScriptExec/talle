@@ -180,40 +180,20 @@ namespace talle
 			return *this;
 		}
 
+		terminal& flush()
+		{
+			backend_.flush();
+			return *this;
+		}
+
 		std::optional<event> read_event()
 		{
 			return sys::read_event();
 		}
-		/*
-		static bool init();
-		static void update();
-		static void close();
-		static bool is_terminal();
 
-		static void enable_alternative_buffer(bool value);
-		static void set_raw_mode(bool value);
-		static void set_cursor_visible(bool value);
-		static void set_cursor_pos(size_t x, size_t y);
-		static void reset_cursor_pos();
-
-		static void clear();
-		template<typename... arguments>
-		static void write(arguments&&... args)
+		std::optional<size> size()
 		{
-			(std::cout << ... << args);
+			return backend_.get_size();
 		}
-
-		template<typename... arguments>
-		static void writeln(arguments&&... args)
-		{
-			(std::cout << ... << args) << '\n';
-		}
-
-		static void erase(size_t count);
-
-		static void set_title(const std::string& value);
-
-		static std::tuple<size_t, size_t> size();
-		*/
 	};
 }
