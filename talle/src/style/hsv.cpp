@@ -20,27 +20,33 @@ namespace talle::style
 
 		if (color.h < 60)
 		{
-			r = c; g = x;
+			r = c;
+			g = x;
 		}
 		else if (color.h < 120)
 		{
-			r = x; g = c;
+			r = x;
+			g = c;
 		}
 		else if (color.h < 180)
 		{
-			g = c; b = x;
+			g = c;
+			b = x;
 		}
 		else if (color.h < 240)
 		{
-			g = x; b = c;
+			g = x;
+			b = c;
 		}
 		else if (color.h < 300)
 		{
-			r = x; b = c;
+			r = x;
+			b = c;
 		}
 		else
 		{
-			r = c; b = x;
+			r = c;
+			b = x;
 		}
 
 		return
