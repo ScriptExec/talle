@@ -24,4 +24,8 @@ foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
 	else()
 		target_compile_options(${TARGET_NAME} PRIVATE -fpermissive)
 	endif()
+
+	install(TARGETS ${TARGET_NAME}
+		RUNTIME DESTINATION bin
+	)
 endforeach()
