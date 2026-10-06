@@ -13,12 +13,14 @@ namespace talle::style
 	class styled
 	{
 	public:
-		template<typename... arguments> requires std::constructible_from<content_type, arguments...>
+		using stored_content_type = meta::content_decay_type<content_type>;
+
+		template<typename... arguments> requires std::constructible_from<stored_content_type, arguments...>
 		styled(arguments&&... args) : content_{ std::forward<arguments>(args)... } {};
-		styled(const content_type& content) : content_{ content } {};
+		styled(const stored_content_type& content) : content_{ content } {};
 
 	private:
-		content_type content_;
+		stored_content_type content_;
 		style style_;
 
 	public:
@@ -92,6 +94,9 @@ namespace talle::style
 			return style_;
 		}
 	};
+
+	template<meta::content content_type>
+	styled(const content_type&) -> styled<content_type>;
 
 	template<meta::output_writer writer_type, meta::content content_type>
 	writer_type& operator<<(writer_type& writer, const styled<content_type>& content);
