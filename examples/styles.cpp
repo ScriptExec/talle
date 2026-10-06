@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
 	for (auto attr : attributes)
 	{
-		term.write(std::format("{:<24}", std::format("{}: ", map_attribute_name(attr))))
+		term.write(std::format("{:<22}", std::format("{}: ", map_attribute_name(attr))))
 			.set_attribute(attr);
 
 		for (size_t w = 0; auto c : text)
@@ -75,14 +75,25 @@ int main(int argc, char* argv[])
 			const auto color = style::hsv_to_rgb({ static_cast<float>((360.0 / text_size) * w++), 1.0, 1.0 });
 
 			term.set_foreground_color(color)
-				.set_underline_color(color)
 				.write(c)
-				.reset_foreground_color()
-				.reset_background_color()
 				.flush();
 		}
-		term.newline().reset_attribute();
+		term.reset_foreground_color()
+			.reset_attribute()
+			.newline();
 	}
+	term.newline();
+
+	constexpr std::string_view url = "https://github.com/ScriptExec/talle";
+	term.write(std::format("{:<22}", "Hyperlink (Url): "))
+		.hyperlink({ url })
+		.newline()
+		.write(std::format("{:<22}", "Hyperlink (Content): "))
+		.hyperlink({ "TALL-E's GitHub", url })
+		.flush();
+
+	term.newline();
+
 	term.set_cursor_visible(true);
 	return 0;
 }
