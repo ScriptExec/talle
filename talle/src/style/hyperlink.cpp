@@ -2,11 +2,6 @@
 
 namespace talle::style
 {
-	hyperlink::hyperlink(std::string_view url) : hyperlink{ std::string{ url } } {}
-	hyperlink::hyperlink(const std::string& url) : content_{}, url_{ url } {}
-	hyperlink::hyperlink(std::string_view content, std::string_view url) : hyperlink{ std::string{ content }, std::string{ url } } {}
-	hyperlink::hyperlink(const std::string& content, const std::string& url) : content_{ content }, url_{ url } {}
-
 	const std::string& hyperlink::content() const
 	{
 		return content_;

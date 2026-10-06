@@ -1,32 +1,98 @@
 #pragma once
 #include <string>
+#include <concepts>
+#include <type_traits>
 #include "style.hpp"
+
+#include <talle/meta/content.hpp>
+#include <talle/sys/platform.hpp>
 
 namespace talle::style
 {
+	template<meta::content content_type>
 	class styled
 	{
 	public:
-		styled(const std::string& content, const style& style);
+		template<typename... arguments> requires std::constructible_from<content_type, arguments...>
+		styled(arguments&&... args) : content_{ std::forward<arguments>(args)... } {};
+		styled(const content_type& content) : content_{ content } {};
 
 	private:
-		std::string content_;
+		content_type content_;
 		style style_;
 
 	public:
-		styled& set_foreground(const std::optional<color>& color);
-		styled& reset_foreground();
-		styled& set_background(const std::optional<color>& color);
-		styled& reset_background();
-		styled& set_underline(const std::optional<color>& color);
-		styled& reset_underline();
+		styled& set_foreground(const std::optional<color>& color)
+		{
+			style_.set_foreground(color);
+			return *this;
+		}
 
-		const std::string& content() const;
-		const style& get_style() const;
-		std::string to_string() const;
-		
+		styled& reset_foreground()
+		{
+			style_.reset_foreground();
+			return *this;
+		}
+
+		styled& set_background(const std::optional<color>& color)
+		{
+			style_.set_background(color);
+			return *this;
+		}
+
+		styled& reset_background()
+		{
+			style_.reset_background();
+			return *this;
+		}
+
+		styled& set_underline(const std::optional<color>& color)
+		{
+			style_.set_underline(color);
+			return *this;
+		}
+
+		styled& reset_underline()
+		{
+			style_.reset_underline();
+			return *this;
+		}
+
+		styled& set(attribute attr, bool value)
+		{
+			style_.set(attr, value);
+			return *this;
+		}
+
+		styled& add(attribute attr)
+		{
+			style_.add(attr);
+			return *this;
+		}
+
+		styled& remove(attribute attr)
+		{
+			style_.remove(attr);
+			return *this;
+		}
+
+		styled& reset()
+		{
+			style_.reset();
+			return *this;
+		}
+
+		const content_type& content() const
+		{
+			return content_;
+		}
+
+		const style& get_style() const
+		{
+			return style_;
+		}
 	};
 
-	template<meta::output_writer writer_type>
-	writer_type& operator<<(writer_type& writer, const styled& content);
+	template<meta::output_writer writer_type, meta::content content_type>
+	writer_type& operator<<(writer_type& writer, const styled<content_type>& content);
 }

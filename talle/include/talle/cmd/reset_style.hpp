@@ -1,7 +1,9 @@
 #pragma once
 #include <talle/cmd/command.hpp>
+#include <talle/cmd/reset_attributes.hpp>
 #include <talle/sys/platform.hpp>
 #include <talle/style/style.hpp>
+#include <talle/style/color_part.hpp>
 
 namespace talle::cmd
 {
@@ -15,26 +17,24 @@ namespace talle::cmd
 		void write_ansi(writer& out) const
 		{
 			if (!sys::is_color_enabled()) return;
-			out << style.to_reset_string();
-		}
 
-#ifdef _WIN32
-		void call_winapi() const
-		{
-			if (!sys::is_color_enabled()) return;
-			if (style.foreground.has_value())
+			auto rstyle = style.as_reset();
+			if (rstyle.underline.has_value())
 			{
-				sys::set_foreground_color(*style.foreground);
+				out << style::color_part::underline(*rstyle.underline);
 			}
-			if (style.background.has_value())
+			if (rstyle.background.has_value())
 			{
-				sys::set_background_color(*style.background);
+				out << style::color_part::background(*rstyle.background);
 			}
-			if (style.underline.has_value())
+			if (rstyle.foreground.has_value())
 			{
-				sys::set_underline_color(*style.underline);
+				out << style::color_part::foreground(*rstyle.foreground);
+			}
+			if (!rstyle.attributes.empty())
+			{
+				out << cmd::reset_attributes{};
 			}
 		}
-#endif
 	};
 }

@@ -177,9 +177,10 @@ namespace talle
 			return *this;
 		}
 
-		terminal& hyperlink(const style::hyperlink& link)
+		template<typename... arguments> requires std::constructible_from<style::hyperlink, arguments...>
+		terminal& hyperlink(arguments&&... args)
 		{
-			backend_.template execute<cmd::write_hyperlink>(link);
+			backend_.template execute<cmd::write_hyperlink>(style::hyperlink(std::forward<arguments>(args)...));
 			return *this;
 		}
 

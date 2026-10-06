@@ -49,13 +49,6 @@ namespace talle::cmd
 			}
 			out << std::format("\x1b[{}m", attr_str);
 		}
-
-#ifdef _WIN32
-		void call_winapi() const
-		{
-			//not supported
-		}
-#endif
 	};
 }
 
@@ -64,6 +57,6 @@ namespace talle::style
 	template<meta::output_writer writer_type>
 	writer_type& operator<<(writer_type& writer, const attribute& attr)
 	{
-		return writer << talle::cmd::set_attribute{ attr };
+		return writer << cmd::set_attribute{ attr };
 	}
 }

@@ -35,6 +35,30 @@ namespace talle::style
 		return *this;
 	}
 
+	style& style::set(attribute attr, bool value)
+	{
+		attributes.set(attr, value);
+		return *this;
+	}
+
+	style& style::add(attribute attr)
+	{
+		attributes.add(attr);
+		return *this;
+	}
+
+	style& style::remove(attribute attr)
+	{
+		attributes.remove(attr);
+		return *this;
+	}
+
+	style& style::reset()
+	{
+		attributes.reset();
+		return *this;
+	}
+
 	style style::as_reset() const
 	{
 		style result;
@@ -50,42 +74,9 @@ namespace talle::style
 		{
 			result.underline = color::reset();
 		}
-		return result;
-	}
-
-	std::string style::to_string() const
-	{
-		std::string result;
-		if (foreground.has_value())
+		if (!attributes.empty())
 		{
-			result += color_part::foreground(*foreground).to_string();
-		}
-		if (background.has_value())
-		{
-			result += color_part::background(*background).to_string();
-		}
-		if (underline.has_value())
-		{
-			result += color_part::underline(*underline).to_string();
-		}
-		return result;
-	}
-
-	std::string style::to_reset_string() const
-	{
-		std::string result;
-		auto reset_style = as_reset();
-		if (reset_style.underline.has_value())
-		{
-			result += color_part::underline(*reset_style.underline).to_string();
-		}
-		if (reset_style.background.has_value())
-		{
-			result += color_part::background(*reset_style.background).to_string();
-		}
-		if (reset_style.foreground.has_value())
-		{
-			result += color_part::foreground(*reset_style.foreground).to_string();
+			result.attributes = { attribute::reset };
 		}
 		return result;
 	}

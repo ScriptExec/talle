@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
 	for (auto attr : attributes)
 	{
-		term.write(std::format("{:<22}", std::format("{}: ", map_attribute_name(attr))))
+		term.write(std::format("{:<24}", std::format("{}: ", map_attribute_name(attr))))
 			.set_attribute(attr);
 
 		for (size_t w = 0; auto c : text)
@@ -85,13 +85,39 @@ int main(int argc, char* argv[])
 	term.newline();
 
 	constexpr std::string_view url = "https://github.com/ScriptExec/talle";
-	term.write(std::format("{:<22}", "Hyperlink (Url): "))
-		.hyperlink({ url })
+	term.write(std::format("{:<24}", "Hyperlink (Hyperlink): "))
+		.hyperlink(url)
 		.newline()
-		.write(std::format("{:<22}", "Hyperlink (Content): "))
-		.hyperlink({ "TALL-E's GitHub", url })
+		.write(std::format("{:<24}", "Hyperlink (Content): "))
+		.hyperlink("TALL-E's GitHub", url)
 		.flush();
 
+	term.newline();
+
+	term.write(std::format("{:<24}", "Styled (Hyperlink): "))
+		.write
+		(
+			style::styled<style::hyperlink>(url)
+			.set_foreground(style::color::base::blue)
+			.add(style::attribute::underlined)
+		)
+		.flush()
+		.newline()
+		.write(std::format("{:<24}", "Styled (String): "))
+		.write
+		(
+			style::styled(text)
+			.set_background(style::color::base::yellow)
+			.set_foreground(style::color::base::black)
+			.add(style::attribute::underlined)
+		)
+		.flush()
+		.newline()
+		.write(std::format("{:<24}", "Styled (Number): "))
+		.write(style::styled(12345)
+			.set_foreground(style::color::base::cyan)
+			.add(style::attribute::italic)
+		);
 	term.newline();
 
 	term.set_cursor_visible(true);

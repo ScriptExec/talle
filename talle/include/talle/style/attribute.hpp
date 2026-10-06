@@ -1,9 +1,10 @@
 #pragma once
+#include <cstdint>
 #include <talle/meta/writer.hpp>
 
 namespace talle::style
 {
-	enum class attribute
+	enum class attribute : uint8_t
 	{
 		reset,
 		bold,
@@ -33,6 +34,11 @@ namespace talle::style
 		no_frame_or_encircle,
 		no_overline,
 	};
+
+	namespace detail
+	{
+		constexpr size_t attribute_element_count = static_cast<size_t>(attribute::no_overline) + 1;
+	}
 
 	template<talle::meta::output_writer writer_type>
 	writer_type& operator<<(writer_type& writer, const attribute& attr);

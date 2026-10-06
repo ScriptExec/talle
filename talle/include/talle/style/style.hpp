@@ -5,6 +5,7 @@
 
 #include <talle/meta/writer.hpp>
 #include "color.hpp"
+#include "attributes.hpp"
 
 namespace talle::style
 {
@@ -13,6 +14,7 @@ namespace talle::style
 		std::optional<color> foreground;
 		std::optional<color> background;
 		std::optional<color> underline;
+		attributes attributes;
 
 		style& set_foreground(const std::optional<color>& color);
 		style& reset_foreground();
@@ -21,9 +23,12 @@ namespace talle::style
 		style& set_underline(const std::optional<color>& color);
 		style& reset_underline();
 
+		style& set(attribute attr, bool value);
+		style& add(attribute attr);
+		style& remove(attribute attr);
+		style& reset();
+
 		style as_reset() const;
-		std::string to_string() const;
-		std::string to_reset_string() const;
 	};
 
 	template<meta::output_writer writer_type>
