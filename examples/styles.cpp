@@ -85,11 +85,11 @@ int main(int argc, char* argv[])
 	term.newline();
 
 	constexpr std::string_view url = "https://github.com/ScriptExec/talle";
-	term.write(std::format("{:<24}", "Hyperlink (Hyperlink): "))
+	term.write(std::format("{:<24}", "Hyperlink (URL): "))
 		.hyperlink(url)
 		.newline()
 		.write(std::format("{:<24}", "Hyperlink (Content): "))
-		.hyperlink("TALL-E's GitHub", url)
+		.hyperlink(url, "TALL-E's GitHub")
 		.flush();
 
 	term.newline();
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 	term.write(std::format("{:<24}", "Styled (Hyperlink): "))
 		.write
 		(
-			style::styled<style::hyperlink>(url)
+			style::styled(style::hyperlink{ url })
 			.set_foreground(style::color::base::blue)
 			.add(style::attribute::underlined)
 		)

@@ -6,25 +6,42 @@
 
 namespace talle::cmd
 {
+	template<meta::content url_type, meta::content content_type = std::string>
 	struct write_hyperlink
 	{
-		write_hyperlink(const style::hyperlink& link) : link{ link } {}
+		using stored_url_type = meta::content_decay_type<url_type>;
+		using stored_content_type = meta::content_decay_type<content_type>;
 
-		style::hyperlink link;
+		write_hyperlink(const style::hyperlink<stored_url_type, stored_content_type>& link) : link{ link } {}
+
+		style::hyperlink<stored_url_type, stored_content_type> link;
 
 		template<meta::output_writer writer>
 		void write_ansi(writer& out) const
 		{
-			out << std::format("\x1b]8;;{}\a{}\x1b]8;;\a", link.url(), link.content_or_url());
+			out << "\x1b]8;;" << link.url() << '\a';
+			const auto content = link.content_or_url();
+			if constexpr (requires { std::visit([&out](const auto& value) { out << value; }, content); })
+			{
+				std::visit([&out](const auto& value)
+				{
+					out << value;
+				}, content);
+			}
+			else
+			{
+				out << content;
+			}
+			out << "\x1b]8;;\a";
 		}
 	};
 }
 
 namespace talle::style
 {
-	template<meta::output_writer writer_type>
-	writer_type& operator<<(writer_type& writer, const hyperlink& link)
+	template<meta::output_writer writer_type, meta::content url_type, meta::content content_type>
+	writer_type& operator<<(writer_type& writer, const hyperlink<url_type, content_type>& link)
 	{
-		return writer << cmd::write_hyperlink{ link };
+		return writer << cmd::write_hyperlink<url_type, content_type>{ link };
 	}
 }

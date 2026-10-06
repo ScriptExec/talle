@@ -177,10 +177,21 @@ namespace talle
 			return *this;
 		}
 
-		template<typename... arguments> requires std::constructible_from<style::hyperlink, arguments...>
-		terminal& hyperlink(arguments&&... args)
+		template<meta::content url_type, meta::content content_type = std::string>
+		terminal& hyperlink(const url_type& url)
 		{
-			backend_.template execute<cmd::write_hyperlink>(style::hyperlink(std::forward<arguments>(args)...));
+			using stored_url_type = meta::content_decay_type<url_type>;
+			using stored_content_type = meta::content_decay_type<content_type>;
+			backend_.template execute<cmd::write_hyperlink<stored_url_type, stored_content_type>>(style::hyperlink<stored_url_type, stored_content_type>(url));
+			return *this;
+		}
+
+		template<meta::content url_type, meta::content content_type = std::string>
+		terminal& hyperlink(const url_type& url, const content_type& content)
+		{
+			using stored_url_type = meta::content_decay_type<url_type>;
+			using stored_content_type = meta::content_decay_type<content_type>;
+			backend_.template execute<cmd::write_hyperlink<stored_url_type, stored_content_type>>(style::hyperlink<stored_url_type, stored_content_type>(url, content));
 			return *this;
 		}
 
