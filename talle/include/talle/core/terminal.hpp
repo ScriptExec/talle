@@ -177,6 +177,12 @@ namespace talle
 			return *this;
 		}
 
+		terminal& hyperlink(const style::hyperlink& link)
+		{
+			backend_.template execute<cmd::write_hyperlink>(link);
+			return *this;
+		}
+
 		terminal& flush()
 		{
 			backend_.flush();
