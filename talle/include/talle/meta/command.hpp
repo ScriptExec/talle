@@ -1,6 +1,7 @@
 #pragma once
 #include <ostream>
 #include <concepts>
+#include <type_traits>
 #include <talle/meta/writer.hpp>
 
 namespace talle::meta
@@ -24,4 +25,7 @@ namespace talle::meta
 		{ cmd.call_winapi() } -> std::same_as<void>;
 	};
 #endif
+
+	template<typename writer_type, typename... arguments>
+	concept is_single_command = sizeof...(arguments) == 1 and (command<std::remove_cvref_t<arguments>, writer_type> and ...);
 }

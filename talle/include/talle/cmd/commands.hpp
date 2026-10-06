@@ -1,0 +1,22 @@
+#pragma once
+
+#include <talle/cmd/clear.hpp>
+#include <talle/cmd/reset_style.hpp>
+#include <talle/cmd/restore_cursor_pos.hpp>
+#include <talle/cmd/save_cursor_pos.hpp>
+#include <talle/cmd/set_attribute.hpp>
+#include <talle/cmd/set_background_color.hpp>
+#include <talle/cmd/set_color.hpp>
+#include <talle/cmd/set_cursor_pos.hpp>
+#include <talle/cmd/set_cursor_style.hpp>
+#include <talle/cmd/set_cursor_visible.hpp>
+#include <talle/cmd/set_foreground_color.hpp>
+#include <talle/cmd/set_size.hpp>
+#include <talle/cmd/set_style.hpp>
+#include <talle/cmd/set_title.hpp>
+#include <talle/cmd/set_underline_color.hpp>
+#include <talle/cmd/toggle_alternative_buffer.hpp>
+#include <talle/cmd/toggle_cursor_blinking.hpp>
+#include <talle/cmd/toggle_mouse_capture.hpp>
+#include <talle/cmd/write_colored_content.hpp>
+#include <talle/cmd/write_styled_content.hpp>

@@ -44,6 +44,7 @@ namespace talle::sys
 
 	std::optional<event> read_event();
 
+	bool has_ansi_support();
 	bool is_color_enabled();
 	bool set_color_enabled(bool value);
 

@@ -5,9 +5,9 @@
 
 namespace talle::cmd
 {
-	struct set_style
+	struct reset_style
 	{
-		set_style(const style::style& style) : style{ style } {}
+		reset_style(const style::style& style) : style{ style } {}
 
 		style::style style;
 
@@ -15,7 +15,7 @@ namespace talle::cmd
 		void write_ansi(writer& out) const
 		{
 			if (!sys::is_color_enabled()) return;
-			out << style.to_string();
+			out << style.to_reset_string();
 		}
 
 #ifdef _WIN32
@@ -37,13 +37,4 @@ namespace talle::cmd
 		}
 #endif
 	};
-}
-
-namespace talle::style
-{
-	template<meta::output_writer writer_type>
-	writer_type& operator<<(writer_type& writer, const style& stl)
-	{
-		return writer << talle::cmd::set_style{ stl };
-	}
 }

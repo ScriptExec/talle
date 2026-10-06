@@ -3,6 +3,7 @@
 #include <optional>
 #include <ostream>
 
+#include <talle/meta/writer.hpp>
 #include "color.hpp"
 
 namespace talle::style
@@ -23,7 +24,8 @@ namespace talle::style
 		style as_reset() const;
 		std::string to_string() const;
 		std::string to_reset_string() const;
-
-		friend std::ostream& operator<<(std::ostream& out, const style& style);
 	};
+
+	template<meta::output_writer writer_type>
+	writer_type& operator<<(writer_type& writer, const style& stl);
 }

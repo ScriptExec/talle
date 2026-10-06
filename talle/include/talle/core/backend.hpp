@@ -5,7 +5,7 @@
 #include <type_traits>
 
 #include <talle/meta/writer.hpp>
-#include <talle/meta/command.hpp>
+#include <talle/cmd/command.hpp>
 #include <talle/sys/platform.hpp>
 #include <talle/utils/env.hpp>
 
@@ -25,27 +25,8 @@ namespace talle
 		template<meta::command<writer_type> command, typename... arguments>
 		void execute(arguments&&... args)
 		{
-			auto cmd = command{ std::forward<arguments>(args)... };
-#ifdef _WIN32
-			bool is_ansi_supported = has_ansi_support();
-			if constexpr (meta::command_has_ansi_support_fn<command>)
-			{
-				is_ansi_supported = cmd.is_ansi_supported();
-			}
-			if (is_ansi_supported)
-			{
-				cmd.write_ansi(writer_.get());
-			}
-			else
-			{
-				if constexpr (meta::command_has_winapi_fn<command>)
-				{
-					cmd.call_winapi();
-				}
-			}
-#else
-			cmd.write_ansi(writer_.get());
-#endif
+			auto comm = command{ std::forward<arguments>(args)... };
+			writer_.get() << comm;
 		}
 
 		template<typename... arguments> requires meta::writeable<writer_type, arguments...>
@@ -73,22 +54,6 @@ namespace talle
 		bool is_raw_mode_enabled() const
 		{
 			return sys::is_raw_mode_enabled();
-		}
-
-		bool has_ansi_support() const
-		{
-			static const bool is_ansi_supported = []() -> bool
-			{
-#ifdef _WIN32
-				if (sys::setup()) return true;
-
-				auto term = env::get("TERM");
-				return term.has_value() and term.value() != "dumb";
-#else
-				return true;
-#endif
-			}();
-			return is_ansi_supported;
 		}
 
 		std::optional<position> get_cursor_pos()

@@ -12,6 +12,19 @@
 namespace talle::sys
 {
 	std::atomic<bool> color_enabled{ true };
+	std::atomic<bool> supports_ansi{ false };
+
+	bool has_ansi_support()
+	{
+		static auto initialized = []()
+		{
+			auto term = env::get("TERM");
+			bool result = sys::setup() or (term.has_value() and term.value() != "dumb");
+			supports_ansi.store(result);
+			return result;
+		}();
+		return supports_ansi.load();
+	}
 
 	bool is_color_enabled()
 	{

@@ -4,6 +4,7 @@
 #include <ostream>
 
 #include "color.hpp"
+#include <talle/meta/writer.hpp>
 #include <talle/sys/platform.hpp>
 
 namespace talle::style
@@ -25,11 +26,6 @@ namespace talle::style
 			{
 				return foreground{ color::reset() };
 			}
-
-			friend std::ostream& operator<<(std::ostream& out, const foreground& col)
-			{
-				return out << "\x1b[" + col.to_string() + "m";
-			}
 		};
 
 		struct background
@@ -46,11 +42,6 @@ namespace talle::style
 			{
 				return background{ color::reset() };
 			}
-
-			friend std::ostream& operator<<(std::ostream& out, const background& col)
-			{
-				return out << "\x1b[" + col.to_string() + "m";
-			}
 		};
 
 		struct underline
@@ -66,11 +57,6 @@ namespace talle::style
 			static underline reset()
 			{
 				return underline{ color::reset() };
-			}
-
-			friend std::ostream& operator<<(std::ostream& out, const underline& col)
-			{
-				return out << "\x1b[" + col.to_string() + "m";
 			}
 		};
 
@@ -136,11 +122,20 @@ namespace talle::style
 
 		color_part& operator=(const color_part& other) = default;
 		color_part& operator=(color_part&& other) noexcept = default;
-
-		friend std::ostream& operator<<(std::ostream& out, const color_part& part)
-		{
-			if (!sys::is_color_enabled()) return out;
-			return out << part;
-		}
 	};
+}
+
+namespace talle::style
+{
+	template<meta::output_writer writer_type>
+	writer_type& operator<<(writer_type& writer, const color_part& part);
+
+	template<meta::output_writer writer_type>
+	writer_type& operator<<(writer_type& writer, const color_part::foreground& fg);
+
+	template<meta::output_writer writer_type>
+	writer_type& operator<<(writer_type& writer, const color_part::background& bg);
+
+	template<meta::output_writer writer_type>
+	writer_type& operator<<(writer_type& writer, const color_part::underline& ul);
 }

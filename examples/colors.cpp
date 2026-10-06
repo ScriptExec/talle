@@ -2,8 +2,7 @@
 #include <iostream>
 #include <format>
 #include <array>
-#include <talle/core/terminal.hpp>
-#include <talle/core/backend.hpp>
+#include <talle/talle.hpp>
 #include <talle/style/hsv.hpp>
 
 using namespace talle;

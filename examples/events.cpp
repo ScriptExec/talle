@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include <talle/core/terminal.hpp>
-#include <talle/core/backend.hpp>
+#include <string_view>
+#include <talle/talle.hpp>
 
 std::string_view map_key_modifier_name(talle::key_modifier modifier)
 {

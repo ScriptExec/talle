@@ -1,5 +1,6 @@
 #include <talle/style/hsv.hpp>
 #include <cmath>
+#include <algorithm>
 
 namespace talle::style
 {
@@ -91,6 +92,6 @@ namespace talle::style
 		const auto s = (max == 0.0f) ? 0.0f : delta / max;
 		const auto v = max;
 
-		return { h, s, v };
+		return hsv{ h, s, v };
 	}
 }

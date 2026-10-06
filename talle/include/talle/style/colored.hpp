@@ -8,10 +8,10 @@ namespace talle::style
 	class colored
 	{
 	public:
-		colored(const std::string& text, const color_part& part);
+		colored(const std::string& content, const color_part& part);
 
 	private:
-		std::string text_;
+		std::string content_;
 		color_part part_;
 
 	public:
@@ -19,11 +19,15 @@ namespace talle::style
 		colored& set_background(const color& color);
 		colored& set_underline(const color& color);
 
-		const std::string& text() const;
+		const std::string& content() const;
 		const color_part& get_part() const;
 		std::string to_string() const;
-
-		friend std::ostream& operator<<(std::ostream& out, const colored& col);
 	};
 
+}
+
+namespace talle::style
+{
+	template<meta::output_writer writer_type>
+	writer_type& operator<<(writer_type& writer, const colored& content);
 }

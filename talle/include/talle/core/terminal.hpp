@@ -4,22 +4,7 @@
 #include <string>
 #include <tuple>
 #include <talle/core/backend.hpp>
-
-#include <talle/cmd/set_size.hpp>
-#include <talle/cmd/set_cursor_pos.hpp>
-#include <talle/cmd/save_cursor_pos.hpp>
-#include <talle/cmd/restore_cursor_pos.hpp>
-#include <talle/cmd/toggle_alternative_buffer.hpp>
-#include <talle/cmd/toggle_mouse_capture.hpp>
-#include <talle/cmd/toggle_cursor_blinking.hpp>
-#include <talle/cmd/clear.hpp>
-#include <talle/cmd/set_cursor_visible.hpp>
-#include <talle/cmd/set_cursor_style.hpp>
-#include <talle/cmd/set_foreground_color.hpp>
-#include <talle/cmd/set_background_color.hpp>
-#include <talle/cmd/set_underline_color.hpp>
-#include <talle/cmd/set_color.hpp>
-#include <talle/cmd/set_title.hpp>
+#include <talle/cmd/commands.hpp>
 
 namespace talle
 {
@@ -157,6 +142,18 @@ namespace talle
 			return *this;
 		}
 
+		terminal& set_attribute(style::attribute attribute)
+		{
+			backend_.template execute<cmd::set_attribute>(attribute);
+			return *this;
+		}
+
+		terminal& reset_attribute()
+		{
+			backend_.template execute<cmd::set_attribute>(style::attribute::reset);
+			return *this;
+		}
+
 		template<typename... arguments> requires meta::writeable<writer_type, arguments...>
 		terminal& write(arguments&&... args)
 		{
@@ -194,6 +191,12 @@ namespace talle
 		std::optional<size> size()
 		{
 			return backend_.get_size();
+		}
+
+		template<typename writeable_type> requires meta::writeable<writer_type, writeable_type>
+		terminal& operator<<(const writeable_type& value)
+		{
+			return write(value);
 		}
 	};
 }

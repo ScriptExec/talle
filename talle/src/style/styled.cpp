@@ -3,7 +3,7 @@
 
 namespace talle::style
 {
-	styled::styled(const std::string& text, const style& style) : text_{ text }, style_{ style } {}
+	styled::styled(const std::string& content, const style& style) : content_{ content }, style_{ style } {}
 
 	styled& styled::set_foreground(const std::optional<color>& color)
 	{
@@ -41,9 +41,9 @@ namespace talle::style
 		return *this;
 	}
 
-	const std::string& styled::text() const
+	const std::string& styled::content() const
 	{
-		return text_;
+		return content_;
 	}
 
 	const style& styled::get_style() const
@@ -53,15 +53,8 @@ namespace talle::style
 
 	std::string styled::to_string() const
 	{
-		if (!sys::is_color_enabled()) return text_;
+		if (!sys::is_color_enabled()) return content_;
 		auto reset_part = style_.as_reset();
-		return style_.to_string() + text_ + reset_part.to_string();
-	}
-
-	std::ostream& operator<<(std::ostream& out, const styled& col)
-	{
-		if (!sys::is_color_enabled()) return out << col.text();
-		const auto& style = col.get_style();
-		return out << style << col.text() << style.to_reset_string();
+		return style_.to_string() + content_ + reset_part.to_string();
 	}
 }

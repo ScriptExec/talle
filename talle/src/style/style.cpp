@@ -89,11 +89,4 @@ namespace talle::style
 		}
 		return result;
 	}
-
-	std::ostream& operator<<(std::ostream& out, const style& style)
-	{
-		if (!sys::is_color_enabled()) return out;
-		out << style.to_string();
-		return out;
-	}
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include <talle/meta/writer.hpp>
+#include <talle/cmd/command.hpp>
 #include <talle/sys/platform.hpp>
 
 namespace talle::cmd
