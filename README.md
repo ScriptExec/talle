@@ -1,6 +1,21 @@
 # TALL-E: **T**erminal **A**bstraction **L**ayer **L**ibrary
 The 'E' is just a subtle nod to WALL-E.
 
+## Previews
+
+#### Colors Example
+
+<img alt="Colors Example" src="./resource/example-colors.gif" width="500" />
+
+#### Styles Example
+
+<img alt="Styles Example" src="./resource/example-styles.gif" width="500" />
+
+> [!NOTE]
+> These are just previews and do not represent the actual appearance and behavior in all environments.
+
+For examples, refer to the [examples](./examples) directory in the repository.
+
 ## Getting Started
 Clone the repository with:
 ```shell
@@ -43,6 +58,3 @@ set(TALLE_STATIC OFF) # default: ON
 add_subdirectory("path/to/talle")
 target_link_libraries(${PROJECT_NAME} PRIVATE talle)
 ```
-
-## Examples
-For examples, refer to the [examples](./examples) directory in the repository.
