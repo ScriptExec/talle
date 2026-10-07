@@ -6,6 +6,7 @@
 #include <limits>
 #include <codecvt>
 #include <csignal>
+#include <utility>
 #include <limits>
 
 #define VC_EXTRALEAN
@@ -338,7 +339,7 @@ namespace talle::sys
 		uint16_t y = static_cast<uint16_t>(csbi.dwCursorPosition.Y);
 
 		auto window_size = csbi.srWindow;
-		auto terminal_width = csbi.srWindow.Right - csbi.srWindow.Left;
+		//auto terminal_width = csbi.srWindow.Right - csbi.srWindow.Left;
 		auto terminal_height = csbi.srWindow.Bottom - csbi.srWindow.Top;
 
 		if (y > terminal_height)
@@ -362,13 +363,12 @@ namespace talle::sys
 		return chars_written;
 	}
 
-	bool clear(COORD start_pos, uint32_t length, uint16_t attribute)
+	bool clear(HANDLE handle, COORD start_pos, uint32_t length, uint16_t attribute)
 	{
-		auto handle = win_current_output_handle();
 		if (!handle) return false;
 
-		if (fill_with_char(*handle, start_pos, length, ' ') == 0) return false;
-		if (fill_with_attribute(*handle, start_pos, length, attribute) == 0) return false;
+		if (fill_with_char(handle, start_pos, length, ' ') == 0) return false;
+		if (fill_with_attribute(handle, start_pos, length, attribute) == 0) return false;
 		return true;
 	}
 
@@ -383,21 +383,21 @@ namespace talle::sys
 		}
 		COORD start_pos{ x, y };
 		uint32_t length = static_cast<uint32_t>(buffer_size.cx * buffer_size.cy);
-		return clear(start_pos, length, attribute);
+		return clear(handle, start_pos, length, attribute);
 	}
 
 	bool clear_before_cursor(HANDLE handle, COORD cursor_pos, SIZE buffer_size, uint16_t attribute)
 	{
 		COORD start_pos{ 0, 0 };
 		uint32_t length = static_cast<uint32_t>(buffer_size.cx * cursor_pos.Y + cursor_pos.X + 1);
-		return clear(start_pos, length, attribute);
+		return clear(handle, start_pos, length, attribute);
 	}
 
 	bool clear_entire_screen(HANDLE handle, SIZE buffer_size, uint16_t attribute, bool clear_history = false)
 	{
 		COORD start_pos{ 0, 0 };
 		uint32_t length = static_cast<uint32_t>(buffer_size.cx * buffer_size.cy);
-		bool result = clear(start_pos, length, attribute);
+		bool result = clear(handle, start_pos, length, attribute);
 		result &= set_cursor_pos({ 0, 0 });
 		if (!clear_history) return result;
 		
@@ -416,8 +416,8 @@ namespace talle::sys
 	bool clear_line_before_cursor(HANDLE handle, COORD cursor_pos, SIZE buffer_size, uint16_t attribute)
 	{
 		COORD start_pos{ 0, cursor_pos.Y };
-		uint32_t length = static_cast<uint32_t>(cursor_pos.X + 1);
-		bool result = clear(start_pos, length, attribute);
+		uint32_t length = static_cast<uint32_t>(std::max(cursor_pos.X + 1, static_cast<int>(buffer_size.cx)));
+		bool result = clear(handle, start_pos, length, attribute);
 		result &= set_cursor_pos({ static_cast<uint16_t>(cursor_pos.X), static_cast<uint16_t>(cursor_pos.Y) });
 		return result;
 	}
@@ -426,7 +426,7 @@ namespace talle::sys
 	{
 		COORD start_pos{ 0, cursor_pos.Y };
 		uint32_t length = static_cast<uint32_t>(buffer_size.cx);
-		bool result = clear(start_pos, length, attribute);
+		bool result = clear(handle, start_pos, length, attribute);
 		result &= set_cursor_pos({ 0, static_cast<uint16_t>(cursor_pos.Y) });
 		return result;
 	}
@@ -435,7 +435,7 @@ namespace talle::sys
 	{
 		COORD start_pos{ cursor_pos.X, cursor_pos.Y };
 		uint32_t length = static_cast<uint32_t>(buffer_size.cx - cursor_pos.X);
-		bool result = clear(start_pos, length, attribute);
+		bool result = clear(handle, start_pos, length, attribute);
 		result &= set_cursor_pos({ static_cast<uint16_t>(cursor_pos.X), static_cast<uint16_t>(cursor_pos.Y) });
 		return result;
 	}
@@ -787,7 +787,7 @@ namespace talle::sys
 		return 0;
 	}
 
-	uint16_t map_ul_color(const style::color& color)
+	uint16_t map_ul_color([[maybe_unused]] const style::color& color)
 	{
 		//not supported
 		return 0;
@@ -854,7 +854,7 @@ namespace talle::sys
 		return true;
 	}
 
-	bool set_underline_color(const style::color& color)
+	bool set_underline_color([[maybe_unused]] const style::color& color)
 	{
 		//not supported
 		return false;

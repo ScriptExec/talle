@@ -17,9 +17,9 @@ namespace talle
 		key_event_type type{};
 		key_modifiers modifiers;
 
-		bool is(key_event_type type) const
+		bool is(key_event_type key_type) const
 		{
-			return this->type == type;
+			return type == key_type;
 		}
 
 		bool is_press() const
