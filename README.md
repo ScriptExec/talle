@@ -21,6 +21,10 @@ Clone the repository with:
 ```shell
 git clone https://github.com/ScriptExec/talle.git
 ```
+or add it as a submodule to your existing repository:
+```shell
+git submodule add https://github.com/ScriptExec/talle.git path/to/talle
+```
 
 ### Build Requirements
 CMake 3.24+
