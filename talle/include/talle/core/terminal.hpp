@@ -94,6 +94,12 @@ namespace talle
 			return *this;
 		}
 
+		terminal& enable_line_wrap(bool value)
+		{
+			backend_.template execute<cmd::toggle_line_wrap>(value);
+			return *this;
+		}
+
 		terminal& clear(clear_type type = clear_type::all)
 		{
 			backend_.template execute<cmd::clear>(type);

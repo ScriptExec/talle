@@ -327,6 +327,23 @@ namespace talle::sys
 		return SetConsoleMode(*handle, mode);
 	}
 
+	bool toggle_line_wrap(bool value)
+	{
+		auto handle = win_current_input_handle();
+		if (!handle) return false;
+		DWORD mode;
+		if (!GetConsoleMode(*handle, &mode)) return false;
+		if (value)
+		{
+			mode |= ENABLE_WRAP_AT_EOL_OUTPUT;
+		}
+		else
+		{
+			mode &= ~ENABLE_WRAP_AT_EOL_OUTPUT;
+		}
+		return SetConsoleMode(*handle, mode);
+	}
+
 	std::optional<position> get_cursor_pos()
 	{
 		//read it from dwCursorPosition

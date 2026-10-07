@@ -127,6 +127,11 @@ namespace talle::sys
 		return false;
 	}
 
+	bool toggle_line_wrap(bool value)
+	{
+		return false;
+	}
+
 	bool set_raw_mode(bool value)
 	{
 		struct termios tty{};
