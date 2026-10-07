@@ -302,6 +302,7 @@ namespace talle::sys
 		}
 		else
 		{
+			if (!CloseHandle(*handle)) return false;
 			new_handle = data.last_buffer_handle;
 			if (new_handle == INVALID_HANDLE_VALUE) return false;
 		}
