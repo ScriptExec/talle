@@ -4,6 +4,7 @@
 #include <talle/cmd/reset_style.hpp>
 #include <talle/cmd/restore_cursor_pos.hpp>
 #include <talle/cmd/save_cursor_pos.hpp>
+#include <talle/cmd/scroll.hpp>
 #include <talle/cmd/set_attribute.hpp>
 #include <talle/cmd/set_attributes.hpp>
 #include <talle/cmd/set_background_color.hpp>

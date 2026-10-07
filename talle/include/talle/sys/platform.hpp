@@ -7,6 +7,7 @@
 #include <talle/event/event.hpp>
 #include <talle/style/color.hpp>
 #include <string>
+#include <talle/input/scroll.hpp>
 
 namespace talle::sys
 {
@@ -38,6 +39,7 @@ namespace talle::sys
 	bool toggle_alternative_buffer(bool value);
 	bool toggle_mouse_capture(bool value);
 	bool toggle_line_wrap(bool value);
+	bool scroll(scroll_direction direction, uint16_t rows);
 	bool set_raw_mode(bool value);
 	bool is_raw_mode_enabled();
 	std::optional<position> get_cursor_pos();

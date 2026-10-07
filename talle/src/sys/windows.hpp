@@ -17,6 +17,7 @@
 #include <talle/event/event.hpp>
 #include <talle/event/resize_event.hpp>
 #include <talle/input/key.hpp>
+#include <talle/input/scroll.hpp>
 #include <talle/event/key_event.hpp>
 #include <talle/style/color.hpp>
 #include <talle/style/color_part.hpp>
@@ -342,6 +343,44 @@ namespace talle::sys
 			mode &= ~ENABLE_WRAP_AT_EOL_OUTPUT;
 		}
 		return SetConsoleMode(*handle, mode);
+	}
+
+	bool scroll(scroll_direction direction, uint16_t rows)
+	{
+		auto handle = win_current_output_handle();
+		if (!handle) return false;
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return false;
+
+		auto window_rect = csbi.srWindow;
+		bool changed = false;
+		switch (direction)
+		{
+			case scroll_direction::up:
+			{
+				if (window_rect.Top >= rows)
+				{
+					window_rect.Top -= rows;
+					window_rect.Bottom -= rows;
+					changed = true;
+				}
+			}
+			break;
+			case scroll_direction::down:
+			{
+				auto buffer_height = csbi.dwSize.Y;
+				if (window_rect.Bottom < (buffer_height - rows))
+				{
+					window_rect.Top += rows;
+					window_rect.Bottom += rows;
+					changed = true;
+				}
+			}
+			break;
+			default: return false;
+		}
+		if (!changed) return true;
+		return SetConsoleWindowInfo(*handle, TRUE, &window_rect);
 	}
 
 	std::optional<position> get_cursor_pos()

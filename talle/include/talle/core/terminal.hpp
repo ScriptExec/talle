@@ -100,6 +100,12 @@ namespace talle
 			return *this;
 		}
 
+		terminal& scroll(scroll_direction direction, uint16_t rows)
+		{
+			backend_.template execute<cmd::scroll>(direction, rows);
+			return *this;
+		}
+
 		terminal& clear(clear_type type = clear_type::all)
 		{
 			backend_.template execute<cmd::clear>(type);

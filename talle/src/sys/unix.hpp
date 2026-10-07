@@ -16,6 +16,7 @@
 #include <talle/utils/position.hpp>
 #include <talle/event/event.hpp>
 #include <talle/style/color.hpp>
+#include <talle/input/scroll.hpp>
 
 namespace talle::sys
 {
@@ -128,6 +129,11 @@ namespace talle::sys
 	}
 
 	bool toggle_line_wrap(bool value)
+	{
+		return false;
+	}
+
+	bool scroll(scroll_direction direction, uint16_t rows)
 	{
 		return false;
 	}
