@@ -11,9 +11,9 @@ namespace talle::style
 
 	color::rgb hsv_to_rgb(hsv color)
 	{
-		const auto c = color.v * color.s;
-		const auto x = c * (1.0 - std::abs(std::fmod(color.h / 60.0, 2.0) - 1.0));
-		const auto m = color.v - c;
+		const float c = static_cast<float>(color.v * color.s);
+		const float x = static_cast<float>(c * (1.0 - std::abs(std::fmod(color.h / 60.0, 2.0) - 1.0)));
+		const float m = static_cast<float>(color.v - c);
 
 		float r = 0;
 		float g = 0;

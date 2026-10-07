@@ -28,6 +28,7 @@ namespace talle::sys
 		uint32_t original_console_out_mode{};
 		std::atomic<uint32_t> original_console_color{ std::numeric_limits<uint32_t>::max() };
 		std::atomic<uint32_t> saved_cursor_pos{ 0 };
+		HANDLE last_buffer_handle{ INVALID_HANDLE_VALUE };
 	} data;
 
 	std::optional<handle> stdout_handle()
@@ -191,7 +192,7 @@ namespace talle::sys
 
 		if (resize_buffer)
 		{
-			COORD coord;
+			COORD coord{};
 			coord.X = new_size_coord.X - 1;
 			coord.Y = new_size_coord.Y - 1;
 			if (!SetConsoleScreenBufferSize(*handle, coord)) return false;
@@ -204,7 +205,7 @@ namespace talle::sys
 
 		if (resize_buffer)
 		{
-			COORD coord;
+			COORD coord{};
 			coord.X = new_size_coord.X - 1;
 			coord.Y = new_size_coord.Y - 1;
 			if (!SetConsoleScreenBufferSize(*handle, coord)) return false;
@@ -270,8 +271,16 @@ namespace talle::sys
 
 	bool set_title(const std::string& title)
 	{
-		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		std::wstring wide_title = converter.from_bytes(title);
+		std::wstring wide_title;
+		if (MultiByteToWideChar(CP_UTF8, 0, title.c_str(), -1, nullptr, 0) > 0)
+		{
+			wide_title.resize(MultiByteToWideChar(CP_UTF8, 0, title.c_str(), -1, nullptr, 0));
+			MultiByteToWideChar(CP_UTF8, 0, title.c_str(), -1, wide_title.data(), static_cast<int>(wide_title.size()));
+		}
+		else
+		{
+			return false;
+		}
 		return SetConsoleTitleW(wide_title.c_str());
 	}
 
@@ -280,12 +289,22 @@ namespace talle::sys
 		auto handle = win_current_output_handle();
 		if (!handle) return false;
 
-		SECURITY_ATTRIBUTES sa;
-		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-		sa.lpSecurityDescriptor = nullptr;
-		sa.bInheritHandle = TRUE;
-		auto new_handle = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, CONSOLE_TEXTMODE_BUFFER, nullptr);
-		if (new_handle == INVALID_HANDLE_VALUE) return false;
+		HANDLE new_handle;
+		if (value)
+		{
+			data.last_buffer_handle = *handle;
+			SECURITY_ATTRIBUTES sa;
+			sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+			sa.lpSecurityDescriptor = nullptr;
+			sa.bInheritHandle = TRUE;
+			new_handle = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, CONSOLE_TEXTMODE_BUFFER, nullptr);
+			if (new_handle == INVALID_HANDLE_VALUE) return false;
+		}
+		else
+		{
+			new_handle = data.last_buffer_handle;
+			if (new_handle == INVALID_HANDLE_VALUE) return false;
+		}
 		return SetConsoleActiveScreenBuffer(new_handle);
 	}
 
@@ -800,8 +819,8 @@ namespace talle::sys
 		CONSOLE_SCREEN_BUFFER_INFO csbi{};
 		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return false;
 
-		auto color_bg = csbi.wAttributes & background_mask_no_intens;
-		auto color_new = color_u16 | color_bg;
+		WORD color_bg = csbi.wAttributes & background_mask_no_intens;
+		WORD color_new = color_u16 | color_bg;
 
 		if ((csbi.wAttributes & FOREGROUND_INTENSITY) != 0)
 		{
@@ -822,8 +841,8 @@ namespace talle::sys
 		CONSOLE_SCREEN_BUFFER_INFO csbi{};
 		if (!GetConsoleScreenBufferInfo(*handle, &csbi)) return false;
 
-		auto color_bg = csbi.wAttributes & foreground_mask_no_intens;
-		auto color_new = color_u16 | color_bg;
+		WORD color_bg = csbi.wAttributes & foreground_mask_no_intens;
+		WORD color_new = color_u16 | color_bg;
 
 		if ((csbi.wAttributes & BACKGROUND_INTENSITY) != 0)
 		{
