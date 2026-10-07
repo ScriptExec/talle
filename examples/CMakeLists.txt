@@ -25,7 +25,9 @@ foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
 		target_compile_options(${TARGET_NAME} PRIVATE -fpermissive)
 	endif()
 
-	install(TARGETS ${TARGET_NAME}
-		RUNTIME DESTINATION bin
-	)
+	if(TALLE_INSTALL)
+		install(TARGETS ${TARGET_NAME}
+			RUNTIME DESTINATION bin
+		)
+	endif()
 endforeach()
