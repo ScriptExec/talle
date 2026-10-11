@@ -22,7 +22,10 @@ namespace talle
 	class renderer
 	{
 	public:
-		renderer(backend_type& backend) : backend_{ backend } {}
+		renderer(backend_type& backend) : backend_{ backend }
+		{
+			set_presenter<immediate_presenter<backend_type>>();
+		}
 	private:
 		backend_type& backend_;
 		size active_size_;
@@ -172,6 +175,24 @@ namespace talle
 				case present_mode::double_buffered: break;
 				default: break;
 			}
+		}
+
+		draw_buffer& get_draw_buffer()
+		{
+			if (presenter_ == nullptr) throw std::runtime_error("presenter is not set.");
+			return presenter_->get_draw_buffer();
+		}
+
+		const draw_buffer& get_draw_buffer() const
+		{
+			if (presenter_ == nullptr) throw std::runtime_error("presenter is not set.");
+			return presenter_->get_draw_buffer();
+		}
+
+		size get_buffer_size() const
+		{
+			if (presenter_ == nullptr) return {};
+			return presenter_->get_draw_buffer().get_size();
 		}
 	};
 }
