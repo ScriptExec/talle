@@ -85,6 +85,11 @@ namespace talle
 			return std::get_if<type>(&data_);
 		}
 
+		bool operator==(const key& other) const
+		{
+			return data_ == other.data_;
+		}
+
 		bool operator==(const code& other) const
 		{
 			auto val = try_get<code>();
@@ -101,6 +106,11 @@ namespace talle
 		{
 			auto val = try_get<chr>();
 			return val and *val == other;
+		}
+
+		bool operator!=(const key& other) const
+		{
+			return !(*this == other);
 		}
 
 		bool operator!=(const code& other) const
