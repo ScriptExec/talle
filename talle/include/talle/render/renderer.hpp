@@ -22,10 +22,8 @@ namespace talle
 	class renderer
 	{
 	public:
-		renderer(backend_type& backend) : backend_{ backend }
-		{
-			set_presenter<immediate_presenter<backend_type>>();
-		}
+		renderer(backend_type& backend) : backend_{ backend } {}
+
 	private:
 		backend_type& backend_;
 		size active_size_;
