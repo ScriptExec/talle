@@ -204,6 +204,24 @@ namespace talle
 		return *this;
 	}
 
+	rect layout::inner_bounds() const
+	{
+		//TODO: clamp values
+		rect result = bounds_;
+		result.start.x += padding_.left;
+		result.start.y += padding_.top;
+		result.end.x -= padding_.right;
+		result.end.y -= padding_.bottom;
+		if (frame_type_ != frame::type::none)
+		{
+			result.start.x += 1;
+			result.start.y += 1;
+			result.end.x -= 1;
+			result.end.y -= 1;
+		}
+		return result;
+	}
+
 	size layout::measure(size available) const
 	{
 		int main_total = 0;
@@ -213,8 +231,9 @@ namespace talle
 		const int available_width = available.width;
 		const int available_height = available.height;
 
-		const int inner_width = std::max<int>(0, available_width - padding_.left - padding_.right);
-		const int inner_height = std::max<int>(0, available_height - padding_.top - padding_.bottom);
+		auto bounds = inner_bounds();
+		const int inner_width = std::max<int>(0, available_width - bounds.width());
+		const int inner_height = std::max<int>(0, available_height - bounds.height());
 
 		for (const auto& child : children_)
 		{
@@ -309,6 +328,7 @@ namespace talle
 		const int inner_x = static_cast<int>(bounds.start.x) + padding_.left;
 		const int inner_y = static_cast<int>(bounds.start.y) + padding_.top;
 
+		const int frame_size = frame_type_ != frame::type::none ? 1 : 0;
 		const int inner_width = std::max<int>(0, static_cast<int>(bounds.width()) - padding_.left - padding_.right);
 		const int inner_height = std::max<int>(0, static_cast<int>(bounds.height()) - padding_.top - padding_.bottom);
 

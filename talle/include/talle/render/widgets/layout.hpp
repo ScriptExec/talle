@@ -48,6 +48,8 @@ namespace talle
 		layout& set_gap(uint16_t value);
 		layout& set_frame_type(frame::type value);
 
+		rect inner_bounds() const;
+
 		virtual size measure(size available) const override;
 		virtual void arrange(const rect& bounds) override;
 		virtual void render(render::context& ctx) const override;
