@@ -328,7 +328,6 @@ namespace talle
 		const int inner_x = static_cast<int>(bounds.start.x) + padding_.left;
 		const int inner_y = static_cast<int>(bounds.start.y) + padding_.top;
 
-		const int frame_size = frame_type_ != frame::type::none ? 1 : 0;
 		const int inner_width = std::max<int>(0, static_cast<int>(bounds.width()) - padding_.left - padding_.right);
 		const int inner_height = std::max<int>(0, static_cast<int>(bounds.height()) - padding_.top - padding_.bottom);
 
@@ -373,13 +372,36 @@ namespace talle
 			static constexpr uint16_t min_dimension = std::numeric_limits<uint16_t>::min();
 			static constexpr uint16_t max_dimension = std::numeric_limits<uint16_t>::max();
 
-			int main_size = direction_ == direction::horizontal ? width : height;
-			int cross_size = direction_ == direction::horizontal ? height : width;
-			int min_main = direction_ == direction::horizontal ? c.min_width.value_or(min_dimension) : c.min_height.value_or(min_dimension);
-			int max_main = direction_ == direction::horizontal ? c.max_width.value_or(max_dimension) : c.max_height.value_or(max_dimension);
-			int min_cross = direction_ == direction::horizontal ? c.min_height.value_or(min_dimension) : c.min_width.value_or(min_dimension);
-
-			int max_cross = direction_ == direction::horizontal ? c.max_height.value_or(max_dimension) : c.max_width.value_or(max_dimension);
+			int main_size{};
+			int cross_size{};
+			int min_main{};
+			int max_main{};
+			int min_cross{};
+			int max_cross{};
+			switch (direction_)
+			{
+				case direction::horizontal:
+				{
+					main_size = width;
+					cross_size = height;
+					min_main = c.min_width.value_or(min_dimension);
+					max_main = c.max_width.value_or(max_dimension);
+					min_cross = c.min_height.value_or(min_dimension);
+					max_cross = c.max_height.value_or(max_dimension);
+				}
+				break;
+				case direction::vertical:
+				{
+					main_size = height;
+					cross_size = width;
+					min_main = c.min_height.value_or(min_dimension);
+					max_main = c.max_height.value_or(max_dimension);
+					min_cross = c.min_width.value_or(min_dimension);
+					max_cross = c.max_width.value_or(max_dimension);
+				}
+				break;
+			}
+			
 
 			float grow = std::max(0.0f, child->layout.grow_factor);
 			float shrink = std::max(0.0f, child->layout.shrink_factor);

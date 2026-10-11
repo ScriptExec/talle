@@ -179,13 +179,13 @@ namespace talle
 
 		draw_buffer& get_draw_buffer()
 		{
-			if (presenter_ == nullptr) throw std::runtime_error("presenter is not set.");
+			if (presenter_ == nullptr) throw std::runtime_error("presenter is not set");
 			return presenter_->get_draw_buffer();
 		}
 
 		const draw_buffer& get_draw_buffer() const
 		{
-			if (presenter_ == nullptr) throw std::runtime_error("presenter is not set.");
+			if (presenter_ == nullptr) throw std::runtime_error("presenter is not set");
 			return presenter_->get_draw_buffer();
 		}
 
