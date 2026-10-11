@@ -1,4 +1,5 @@
 #pragma once
+#include <format>
 #include <talle/cmd/command.hpp>
 #include <talle/sys/platform.hpp>
 #include <talle/utils/position.hpp>
@@ -15,7 +16,7 @@ namespace talle::cmd
 		template<meta::output_writer writer>
 		void write_ansi(writer& out) const
 		{
-			out << "\x1b[" << pos.y + 1 << ";" << pos.x + 1 << "H";
+			out << std::format("\x1b[{};{}H", pos.y + 1, pos.x + 1);
 		}
 
 #ifdef _WIN32
