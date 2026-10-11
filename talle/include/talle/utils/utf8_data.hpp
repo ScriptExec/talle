@@ -4,6 +4,8 @@
 #include <string_view>
 #include <cstdint>
 
+#include <talle/meta/writer.hpp>
+
 namespace talle
 {
 	struct utf8_data
@@ -121,4 +123,15 @@ namespace talle
 			return data[0] == c and data[1] == 0 and data[2] == 0 and data[3] == 0;
 		}
 	};
+
+	template<meta::output_writer writer_type>
+	writer_type& operator<<(writer_type& writer, const utf8_data& utf8)
+	{
+		for (const auto& byte : utf8.data)
+		{
+			if (byte == 0) break;
+			writer << byte;
+		}
+		return writer;
+	}
 }
