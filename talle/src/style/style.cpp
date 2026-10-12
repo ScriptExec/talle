@@ -80,4 +80,19 @@ namespace talle::style
 		}
 		return result;
 	}
+
+	bool style::has_foreground() const
+	{
+		return foreground.has_value();
+	}
+
+	bool style::has_background() const
+	{
+		return background.has_value();
+	}
+
+	bool style::has_underline() const
+	{
+		return underline.has_value();
+	}
 }

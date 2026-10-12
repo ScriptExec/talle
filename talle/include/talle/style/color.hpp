@@ -161,5 +161,31 @@ namespace talle::style
 			return color{ base::reset };
 		}
 	};
-	
+}
+
+namespace std
+{
+	template<>
+	struct hash<talle::style::color>
+	{
+		size_t operator()(const talle::style::color& color) const
+		{
+			if (auto base_col = color.try_get<talle::style::color::base>())
+			{
+				return std::hash<uint8_t>{}(static_cast<uint8_t>(*base_col));
+			}
+			else if (auto ansi_col = color.try_get<talle::style::color::ansi>())
+			{
+				return std::hash<uint8_t>{}(ansi_col->value);
+			}
+			else if (auto rgb_col = color.try_get<talle::style::color::rgb>())
+			{
+				size_t h1 = std::hash<uint8_t>{}(rgb_col->r);
+				size_t h2 = std::hash<uint8_t>{}(rgb_col->g);
+				size_t h3 = std::hash<uint8_t>{}(rgb_col->b);
+				return h1 ^ (h2 << 1) ^ (h3 << 2);
+			}
+			return 0;
+		}
+	};
 }

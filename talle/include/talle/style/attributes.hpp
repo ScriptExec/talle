@@ -46,15 +46,32 @@ namespace talle::style
 		attributes& remove(attribute attr);
 		attributes& reset();
 
+		const std::bitset<detail::attribute_element_count>& data() const;
+
 		bool has(attribute attr) const;
 		bool empty() const;
 
 		iterator begin() const;
 		iterator end() const;
+
+		bool operator==(const attributes& other) const;
+		bool operator!=(const attributes& other) const;
 	private:
 		static size_t map_attribute_to_idx(attribute attr);
 	};
 
 	template<meta::output_writer writer_type>
 	writer_type& operator<<(writer_type& writer, const attributes& attr);
+}
+
+namespace std
+{
+	template<>
+	struct hash<talle::style::attributes>
+	{
+		size_t operator()(const talle::style::attributes& attr) const
+		{
+			return std::hash<std::bitset<talle::style::detail::attribute_element_count>>{}(attr.data());
+		}
+	};
 }

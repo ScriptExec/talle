@@ -69,6 +69,11 @@ namespace talle::style
 		return *this;
 	}
 
+	const std::bitset<detail::attribute_element_count>& attributes::data() const
+	{
+		return data_;
+	}
+
 	bool attributes::has(attribute attr) const
 	{
 		return data_.test(map_attribute_to_idx(attr));
@@ -87,6 +92,16 @@ namespace talle::style
 	attributes::iterator attributes::end() const
 	{
 		return attributes::iterator{ this, detail::attribute_element_count };
+	}
+
+	bool attributes::operator==(const attributes& other) const
+	{
+		return data_ == other.data_;
+	}
+
+	bool attributes::operator!=(const attributes& other) const
+	{
+		return !(*this == other);
 	}
 
 	size_t attributes::map_attribute_to_idx(attribute attr)
