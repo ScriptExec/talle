@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdint>
 #include <talle/utils/size.hpp>
+#include <talle/utils/rect.hpp>
 #include <talle/utils/position.hpp>
 #include "cell.hpp"
 
@@ -33,6 +34,17 @@ namespace talle
 		void fill(const cell& value)
 		{
 			std::fill(data_.begin(), data_.end(), value);
+		}
+
+		void fill(const rect& area, const cell& value)
+		{
+			for (uint16_t y = area.start.y; y <= area.end.y; ++y)
+			{
+				for (uint16_t x = area.start.x; x <= area.end.x; ++x)
+				{
+					set({ x, y }, value);
+				}
+			}
 		}
 
 		void set(position pos, const cell& value)
