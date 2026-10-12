@@ -1,13 +1,13 @@
 #pragma once
 #include <array>
 #include <cstdint>
-#include <talle/meta/frame_style.hpp>
 #include <talle/render/frame_side.hpp>
 #include <talle/utils/utf8_data.hpp>
+#include <talle/render/frame/impl/frame.hpp>
 
 namespace talle::frame
 {
-	struct single_line
+	struct single_line : public impl::frame
 	{
 		static constexpr std::array<utf8_data, 16> glyphs
 		{
@@ -29,9 +29,16 @@ namespace talle::frame
 			u8"\u253C", // all
 		};
 
-		constexpr utf8_data get(frame_side sides)
+		single_line(size_t hash) : impl::frame{ hash } {}
+
+		virtual utf8_data get(frame_side sides) const override
 		{
 			return glyphs[static_cast<uint8_t>(sides) & 0x0F];
+		}
+
+		virtual std::unique_ptr<frame> clone() const override
+		{
+			return std::make_unique<single_line>(hash());
 		}
 	};
 }

@@ -5,7 +5,7 @@
 #include <map>
 
 #include <talle/render/presenters/immediate_presenter.hpp>
-#include <talle/meta/frame_style.hpp>
+#include <talle/meta/frame.hpp>
 #include <talle/core/backend.hpp>
 #include <talle/utils/rect.hpp>
 #include <talle/render/widgets/widget.hpp>
@@ -63,12 +63,12 @@ namespace talle
 			presenter_->set(pos, cell);
 		}
 
-		template<meta::frame_style frame_style_type>
+		template<meta::frame frame_type>
 		void frame(const rect& box)
 		{
 			if (presenter_ == nullptr) return;
 
-			frame_style_type style{};
+			frame_type frame{};
 			//TODO: Check if size isn't out of terminal bounds
 			for (uint16_t y = box.start.y; y <= box.end.y; y++)
 			{
@@ -90,49 +90,15 @@ namespace talle
 					if (top) sides |= frame_side::top;
 					if (bottom) sides |= frame_side::bottom;
 
-					render(position{ x, y }, cell{ style.get(sides) });
+					render(position{ x, y }, cell{ frame.get(sides) });
 				}
 			}
 		}
 
-		template<meta::frame_style frame_style_type>
+		template<meta::frame frame_type>
 		void frames(const std::vector<rect>& boxes)
 		{
-			if (presenter_ == nullptr) return;
-
-			frame_style_type style{};
-			std::map<position, frame_side> borders;
-
-			for (const rect& box : boxes)
-			{
-				const auto is_border = [&](uint16_t x, uint16_t y)
-				{
-					return x >= box.start.x and x <= box.end.x and y >= box.start.y and y <= box.end.y and
-						(x == box.start.x or x == box.end.x or y == box.start.y or y == box.end.y);
-				};
-
-				for (uint16_t y = box.start.y; y <= box.end.y; ++y)
-				{
-					for (uint16_t x = box.start.x; x <= box.end.x; ++x)
-					{
-						if (!is_border(x, y)) continue;
-
-						frame_side sides{};
-
-						if (x > box.start.x and is_border(x - 1, y)) sides |= frame_side::left;
-						if (x < box.end.x and is_border(x + 1, y)) sides |= frame_side::right;
-						if (y > box.start.y and is_border(x, y - 1)) sides |= frame_side::top;
-						if (y < box.end.y and is_border(x, y + 1)) sides |= frame_side::bottom;
-
-						borders[{x, y}] |= sides;
-					}
-				}
-			}
-
-			for (const auto& [pos, sides] : borders)
-			{
-				render(position{ pos.x, pos.y }, cell{ style.get(sides) });
-			}
+			frames(frame_type{}, boxes);
 		}
 
 		template<meta::widget widget_type>
@@ -146,16 +112,11 @@ namespace talle
 			widget.arrange(rect(0, 0, size.width - 1, size.height - 1));
 			widget.render(ctx);
 
-			for (const auto& [type, boxes] : ctx.frames)
+			for (const auto& [type_id, boxes] : ctx.frames)
 			{
-				switch (type)
-				{
-					case frame::type::single_line: frames<frame::single_line>(boxes); break;
-					case frame::type::double_line: frames<frame::double_line>(boxes); break;
-					case frame::type::heavy_line: frames<frame::heavy_line>(boxes); break;
-					case frame::type::rounded_line: frames<frame::rounded_line>(boxes); break;
-					default: break;
-				}
+				auto& ptr = ctx.frame_types.at(type_id);
+				if (ptr == nullptr) continue;
+				frames(*ptr, boxes);
 			}
 		}
 
@@ -191,6 +152,44 @@ namespace talle
 		{
 			if (presenter_ == nullptr) return {};
 			return presenter_->get_draw_buffer().get_size();
+		}
+	private:
+		void frames(impl::frame& frame, const std::vector<rect>& boxes)
+		{
+			if (presenter_ == nullptr) return;
+
+			std::map<position, frame_side> borders;
+
+			for (const rect& box : boxes)
+			{
+				const auto is_border = [&](uint16_t x, uint16_t y)
+				{
+					return x >= box.start.x and x <= box.end.x and y >= box.start.y and y <= box.end.y and
+						(x == box.start.x or x == box.end.x or y == box.start.y or y == box.end.y);
+				};
+
+				for (uint16_t y = box.start.y; y <= box.end.y; ++y)
+				{
+					for (uint16_t x = box.start.x; x <= box.end.x; ++x)
+					{
+						if (!is_border(x, y)) continue;
+
+						frame_side sides{};
+
+						if (x > box.start.x and is_border(x - 1, y)) sides |= frame_side::left;
+						if (x < box.end.x and is_border(x + 1, y)) sides |= frame_side::right;
+						if (y > box.start.y and is_border(x, y - 1)) sides |= frame_side::top;
+						if (y < box.end.y and is_border(x, y + 1)) sides |= frame_side::bottom;
+
+						borders[{x, y}] |= sides;
+					}
+				}
+			}
+
+			for (const auto& [pos, sides] : borders)
+			{
+				render(position{ pos.x, pos.y }, cell{ frame.get(sides) });
+			}
 		}
 	};
 }

@@ -198,12 +198,6 @@ namespace talle
 		return *this;
 	}
 
-	layout& layout::set_frame_type(frame::type value)
-	{
-		frame_type_ = value;
-		return *this;
-	}
-
 	rect layout::inner_bounds() const
 	{
 		//TODO: clamp values
@@ -212,7 +206,7 @@ namespace talle
 		result.start.y += padding_.top;
 		result.end.x -= padding_.right;
 		result.end.y -= padding_.bottom;
-		if (frame_type_ != frame::type::none)
+		if (has_frame())
 		{
 			result.start.x += 1;
 			result.start.y += 1;
@@ -220,6 +214,11 @@ namespace talle
 			result.end.y -= 1;
 		}
 		return result;
+	}
+
+	bool layout::has_frame() const
+	{
+		return frame_type_ != nullptr;
 	}
 
 	size layout::measure(size available) const
@@ -580,9 +579,9 @@ namespace talle
 	{
 		if (!visible()) return;
 
-		if (frame_type_ != frame::type::none)
+		if (has_frame())
 		{
-			ctx.frames[frame_type_].push_back(bounds_);
+			ctx.add_frame(*frame_type_, bounds_);
 		}
 
 		for (const auto& child : children_)

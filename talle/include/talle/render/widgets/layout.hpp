@@ -1,14 +1,16 @@
 #pragma once
-#include <vector>
 #include <tuple>
 #include <memory>
+#include <vector>
+#include <optional>
 #include <talle/render/direction.hpp>
 #include <talle/render/widgets/widget.hpp>
 #include <talle/render/layout/flex.hpp>
 #include <talle/render/layout/alignment.hpp>
 #include <talle/render/layout/constraints.hpp>
 #include <talle/render/layout/padding.hpp>
-#include <talle/render/frame/type.hpp>
+#include <talle/meta/frame.hpp>
+#include <talle/render/frame/none.hpp>
 
 namespace talle
 {
@@ -29,13 +31,13 @@ namespace talle
 			child_layout layout;
 		};
 
-		explicit layout(direction dir) : direction_{ dir }, gap_{ 0 }, flex_{ flex::start }, alignment_{ alignment::start }, frame_type_{ frame::type::none } {}
+		explicit layout(direction dir) : direction_{ dir }, gap_{ 0 }, flex_{ flex::start }, alignment_{ alignment::start }, frame_type_{} {}
 
 	private:
 		std::vector<std::unique_ptr<child<widget>>> children_;
 		padding padding_;
 		uint16_t gap_;
-		frame::type frame_type_;
+		std::unique_ptr<impl::frame> frame_type_;
 		flex flex_;
 		alignment alignment_;
 		direction direction_;
@@ -46,9 +48,23 @@ namespace talle
 		layout& set_padding(const padding& value);
 		layout& set_direction(direction value);
 		layout& set_gap(uint16_t value);
-		layout& set_frame_type(frame::type value);
 
 		rect inner_bounds() const;
+		bool has_frame() const;
+
+		template<meta::frame frame_type>
+		layout& set_frame_type()
+		{
+			if constexpr (std::is_same_v<frame_type, frame::none>)
+			{
+				frame_type_ = nullptr;
+			}
+			else
+			{
+				frame_type_ = std::make_unique<frame_type>(typeid(frame_type).hash_code());
+			}
+			return *this;
+		}
 
 		virtual size measure(size available) const override;
 		virtual void arrange(const rect& bounds) override;

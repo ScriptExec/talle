@@ -1,5 +1,6 @@
 #pragma once
 
+#include "none.hpp"
 #include "single_line.hpp"
 #include "double_line.hpp"
 #include "heavy_line.hpp"
