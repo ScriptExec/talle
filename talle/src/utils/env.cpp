@@ -12,7 +12,7 @@ namespace talle::env
 		if (getenv_s(&required_size, buffer.data(), required_size, name.c_str()) != 0) return std::nullopt;
 		return buffer;
 #else
-		std::string value = std::getenv(name.c_str());
+		auto* value = std::getenv(name.c_str());
 		if (value == nullptr) return std::nullopt;
 		return std::string{ value };
 #endif
