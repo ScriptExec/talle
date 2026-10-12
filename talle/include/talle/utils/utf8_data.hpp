@@ -122,6 +122,21 @@ namespace talle
 		{
 			return data[0] == c and data[1] == 0 and data[2] == 0 and data[3] == 0;
 		}
+
+		constexpr bool operator==(const utf8_data& other) const
+		{
+			return data == other.data;
+		}
+
+		constexpr bool operator!=(uint8_t c) const
+		{
+			return !(*this == c);
+		}
+
+		constexpr bool operator!=(const utf8_data& other) const
+		{
+			return !(*this == other);
+		}
 	};
 
 	template<meta::output_writer writer_type>
