@@ -21,5 +21,17 @@ namespace talle
 		{
 			return data_;
 		}
+
+		///@return Empty cell filled with whitespace
+		static cell empty()
+		{
+			return cell{};
+		}
+
+		///@return Cell which should be ignored by the renderer
+		static cell dont_care()
+		{
+			return cell{ utf8_data{ uint8_t{} } };
+		}
 	};
 }
