@@ -9,6 +9,22 @@
 
 namespace talle
 {
+	struct draw_buffer_diff_range
+	{
+		position start{};
+		position end{};
+	};
+
+	struct draw_buffer_diff
+	{
+		std::vector<draw_buffer_diff_range> ranges;
+
+		constexpr bool has_changes() const
+		{
+			return ranges.size() != 0;
+		}
+	};
+
 	class draw_buffer
 	{
 	public:
@@ -79,6 +95,16 @@ namespace talle
 			return data_;
 		}
 
+		cell& at(position pos)
+		{
+			return data_.at(pos.y * size_.width + pos.x);
+		}
+		
+		const cell& at(position pos) const
+		{
+			return data_.at(pos.y * size_.width + pos.x);
+		}
+
 		cell& operator[](size_t index)
 		{
 			return data_.at(index);
@@ -91,12 +117,14 @@ namespace talle
 
 		cell& operator()(position pos)
 		{
-			return data_.at(pos.y * size_.width + pos.x);
+			return at(pos);
 		}
 
 		const cell& operator()(position pos) const
 		{
-			return data_.at(pos.y * size_.width + pos.x);
+			return at(pos);
 		}
+
+		draw_buffer_diff diff(const draw_buffer& other) const;
 	};
 }

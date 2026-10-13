@@ -6,6 +6,6 @@ namespace talle
 	enum class present_mode
 	{
 		immediate,
-		double_buffered,
+		buffered,
 	};
 }

@@ -45,11 +45,29 @@ namespace talle
 			return buffer_;
 		}
 
-		virtual void set(position pos, const cell& cell) = 0;
+		virtual void set(position pos, const cell& cell)
+		{
+			auto size = buffer_.get_size();
+			if (pos.x >= size.width or pos.y >= size.height) return;
 
-		virtual void on_resize(size new_size) = 0;
-		virtual void on_clear(const std::optional<cell>& fill_cell = std::nullopt) = 0;
-		virtual void on_clear(const rect& area, const std::optional<cell>& fill_cell = std::nullopt) = 0;
+			buffer_.set(pos, cell);
+		}
+
+		virtual void on_resize(size new_size)
+		{
+			buffer_.resize(new_size);
+		}
+
+		virtual void on_clear(const std::optional<cell>& fill_cell = std::nullopt)
+		{
+			buffer_.fill(fill_cell.value_or(cell::empty()));
+		}
+
+		virtual void on_clear(const rect& area, const std::optional<cell>& fill_cell = std::nullopt)
+		{
+			buffer_.fill(area, fill_cell.value_or(cell::empty()));
+		}
+
 		virtual void on_render() = 0;
 	};
 

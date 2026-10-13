@@ -32,6 +32,16 @@ namespace talle::style
 		struct ansi
 		{
 			uint8_t value{};
+
+			bool operator==(const ansi& other) const
+			{
+				return value == other.value;
+			}
+
+			bool operator!=(const ansi& other) const
+			{
+				return !(*this == other);
+			}
 		};
 
 		struct rgb
@@ -39,6 +49,16 @@ namespace talle::style
 			uint8_t r{};
 			uint8_t g{};
 			uint8_t b{};
+
+			bool operator==(const rgb& other) const
+			{
+				return r == other.r and g == other.g and b == other.b;
+			}
+
+			bool operator!=(const rgb& other) const
+			{
+				return !(*this == other);
+			}
 		};
 
 		color(const base& color) : data_{ color } {}
@@ -155,6 +175,11 @@ namespace talle::style
 
 		color& operator=(const color& other) = default;
 		color& operator=(color&& other) noexcept = default;
+		
+		bool operator==(const color& other) const
+		{
+			return data_ == other.data_;
+		}
 
 		static color reset()
 		{

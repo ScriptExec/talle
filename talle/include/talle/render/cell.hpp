@@ -44,7 +44,12 @@ namespace talle
 		const style::style& style() const
 		{
 			return style_;
-		}		
+		}
+
+		bool operator==(const cell& other) const
+		{
+			return data_ == other.data() and style_ == other.style();
+		}
 
 		///@return Empty cell filled with whitespace
 		static cell empty()

@@ -34,7 +34,8 @@ namespace talle::style
 		bool has_background() const;
 		bool has_underline() const;
 
-		bool operator==(const style&) const = default;
+		bool operator==(const style& other) const;
+		bool operator!=(const style& other) const;
 	};
 
 	template<meta::output_writer writer_type>

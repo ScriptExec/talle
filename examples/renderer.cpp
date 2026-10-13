@@ -3,18 +3,40 @@
 #include <talle/render/frame/rounded_line.hpp>
 #include <cmath>
 #include <chrono>
+#include <format>
 #include <numbers>
-#include <talle/render/widgets/layout.hpp>
+#include <array>
+#include <random>
 
 using namespace talle;
 
+static constexpr std::string_view charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]{}|;':\",./<>?`~";
+static std::default_random_engine random{ std::random_device{}() };
+static std::uniform_int_distribution<uint16_t> charset_distr{ 0, charset.size() - 1 };
+
+static position random_pos(const rect& bounds)
+{
+	auto min_x = std::min(bounds.start.x, bounds.end.x);
+	auto max_x = std::max(bounds.start.x, bounds.end.x);
+	auto min_y = std::min(bounds.start.y, bounds.end.y);
+	auto max_y = std::max(bounds.start.y, bounds.end.y);
+	std::uniform_int_distribution<uint16_t> x_range{ min_x, max_x };
+	std::uniform_int_distribution<uint16_t> y_range{ min_y, max_y };
+	return { x_range(random), y_range(random) };
+}
+
 int main(int argc, char* argv[])
 {
+	constexpr bool show_cursor = true;
+
 	auto back = backend{ std::cout };
 	auto term = terminal{ back };
 	auto rnd = renderer{ back };
 
-	term.set_cursor_visible(false);
+	if (!show_cursor)
+	{
+		term.set_cursor_visible(false);
+	}
 
 	auto term_size_opt = term.size();
 	if (!term_size_opt.has_value())
@@ -24,19 +46,21 @@ int main(int argc, char* argv[])
 	}
 	auto term_size = term_size_opt.value();
 	rnd.resize(term_size);
-	rnd.set_present_mode(present_mode::immediate);
+	rnd.set_present_mode(present_mode::buffered);
 
 	auto start_time = std::chrono::steady_clock::now();
 	while (true)
 	{
+		auto frame_start_time = std::chrono::steady_clock::now();
+
 		term_size_opt = term.size();
 		if (term_size_opt.has_value())
 		{
 			term_size = term_size_opt.value();
 		}
 
-		auto event = term.read_event();
 		bool clear{};
+		auto event = term.read_event();
 		if (event.has_value())
 		{
 			if (auto event_resize = event->try_get<resize_event>())
@@ -51,119 +75,32 @@ int main(int argc, char* argv[])
 					{
 						break;
 					}
+
+					if (event_key_chr->c == ' ' and event_key->is_press())
+					{
+						clear = true;
+					}
 				}
 			}
 		}
 
-		term.reset_cursor_pos();
-
-		using frame_type = frame::rounded_line;
-		auto root = layout{ direction::horizontal };
+		if (clear)
 		{
-			root.set_flex(flex::space_around);
-			root.set_frame_type<frame_type>();
-
-			auto& left_child = root.add<layout>(direction::horizontal);
-			{
-				auto& left = left_child.item;
-				left->set_frame_type<frame_type>();
-				left->set_flex(flex::space_around);
-				left_child.constraints.fill_space();
-
-				auto& left_left_child = left->add<layout>(direction::vertical);
-				{
-					auto& left_left = left_left_child.item;
-					left_left->set_frame_type<frame_type>();
-					left_left->set_flex(flex::space_between);
-					left_left->set_gap(1);
-					left_left->set_padding(1);
-					left_left_child.constraints.fill_space();
-					auto& left_left_top_child = left_left->add<layout>(direction::horizontal);
-					{
-						auto& left_left_top = left_left_top_child.item;
-						left_left_top->set_frame_type<frame_type>();
-						left_left_top_child.constraints.fill_space();
-					}
-					auto& left_left_bottom_child = left_left->add<layout>(direction::horizontal);
-					{
-						auto& left_left_bottom = left_left_bottom_child.item;
-						left_left_bottom->set_frame_type<frame_type>();
-						left_left_bottom_child.constraints.fill_space();
-					}
-				}
-
-				auto& left_right_child = left->add<layout>(direction::vertical);
-				{
-					auto& left_right = left_right_child.item;
-					left_right->set_frame_type<frame_type>();
-					left_right->set_flex(flex::space_between);
-					left_right_child.constraints.fill_space();
-					
-					auto& left_right_top_child = left_right->add<layout>(direction::horizontal);
-					{
-						auto& left_right_top = left_right_top_child.item;
-						left_right_top->set_frame_type<frame_type>();
-						left_right_top_child.constraints.height_percentage = 1 / 2.6f;
-						left_right_top_child.constraints.fill_space();
-					}
-					auto& left_right_middle_child = left_right->add<layout>(direction::horizontal);
-					{
-						auto& left_right_middle = left_right_middle_child.item;
-						left_right_middle->set_frame_type<frame_type>();
-						left_right_middle_child.constraints.height_percentage = 1 / 4.f;
-						left_right_middle_child.constraints.fill_space();
-					}
-					auto& left_right_bottom_child = left_right->add<layout>(direction::horizontal);
-					{
-						auto& left_right_bottom = left_right_bottom_child.item;
-						left_right_bottom->set_frame_type<frame_type>();
-						left_right_bottom_child.constraints.height_percentage = 1 / 8.f;
-						left_right_bottom_child.constraints.fill_space();
-					}
-
-				}
-			}
-
-			auto& right_child = root.add<layout>(direction::vertical);
-			{
-				auto& right = right_child.item;
-				right->set_frame_type<frame_type>();
-				right->set_padding(1);
-				right->set_flex(flex::space_between);
-				right_child.constraints.fill_space();
-
-				auto& top_right_child = right->add<layout>(direction::horizontal);
-				{
-					auto& top_right = top_right_child.item;
-					top_right->set_frame_type<frame_type>();
-					top_right->set_padding(2);
-					top_right_child.constraints.fill_space();
-					{
-						auto& top_right_left_child = top_right->add<layout>(direction::vertical);
-						{
-							auto& top_right_left = top_right_left_child.item;
-							top_right_left->set_frame_type<frame_type>();
-							top_right_left_child.constraints.fill_space();
-						}
-						auto& top_right_right_child = top_right->add<layout>(direction::vertical);
-						{
-							auto& top_right_right = top_right_right_child.item;
-							top_right_right->set_frame_type<frame_type>();
-							top_right_right_child.constraints.fill_space();
-						}
-					}
-				}
-				auto& bottom_right_child = right->add<layout>(direction::horizontal);
-				{
-					auto& bottom_right = bottom_right_child.item;
-					bottom_right->set_frame_type<frame_type>();
-					bottom_right_child.constraints.fill_space();
-				}
-			}
-		}		
-		rnd.clear();
-		rnd.render(root);
+			rnd.clear();
+			clear = false;
+		}
+		term.reset_cursor_pos();
+		
+		auto buf_size = rnd.get_buffer_size();
+		auto draw_rect = rect(0, 0, buf_size.width - 1, buf_size.height - 1);
+		rnd.render(random_pos(draw_rect), cell{ utf8_data{ charset.at(charset_distr(random))} });
 		rnd.render();
+
+		auto fps = 1.0 / std::chrono::duration<double>(std::chrono::steady_clock::now() - frame_start_time).count();
+		term.set_title(std::format("FPS: {:.2f}", fps));
 	}
-	term.set_cursor_visible(true);
+	if (!show_cursor)
+	{
+		term.set_cursor_visible(true);
+	}
 }

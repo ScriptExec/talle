@@ -95,4 +95,17 @@ namespace talle::style
 	{
 		return underline.has_value();
 	}
+
+	bool style::operator==(const style& other) const
+	{
+		return foreground == other.foreground and
+			background == other.background and
+			underline == other.underline and
+			attributes == other.attributes;
+	}
+
+	bool style::operator!=(const style& other) const
+	{
+		return !(*this == other);
+	}
 }

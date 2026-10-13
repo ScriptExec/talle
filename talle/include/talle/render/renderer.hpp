@@ -5,6 +5,7 @@
 #include <map>
 
 #include <talle/render/presenters/immediate_presenter.hpp>
+#include <talle/render/presenters/buffered_presenter.hpp>
 #include <talle/meta/frame.hpp>
 #include <talle/core/backend.hpp>
 #include <talle/utils/rect.hpp>
@@ -102,14 +103,14 @@ namespace talle
 		}
 
 		template<meta::widget widget_type>
-		void render(widget_type& widget)
+		void render(widget_type& widget, const std::optional<rect>& bounds = std::nullopt)
 		{
 			if (presenter_ == nullptr) return;
 
 			auto& buffer = presenter_->get_draw_buffer();
 			render::context ctx{ buffer, {} };
 			auto size = buffer.get_size();
-			widget.arrange(rect(0, 0, size.width - 1, size.height - 1));
+			widget.arrange(bounds.value_or(rect(0, 0, size.width - 1, size.height - 1)));
 			widget.render(ctx);
 
 			for (const auto& [type_id, boxes] : ctx.frames)
@@ -131,7 +132,7 @@ namespace talle
 			switch (mode)
 			{
 				case present_mode::immediate: set_presenter<immediate_presenter<backend_type>>(); break;
-				case present_mode::double_buffered: break;
+				case present_mode::buffered: set_presenter<buffered_presenter<backend_type>>(); break;
 				default: break;
 			}
 		}

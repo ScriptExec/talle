@@ -11,6 +11,7 @@ namespace talle
 	class utf8_data
 	{
 	public:
+		constexpr utf8_data(char c) : data_{ static_cast<uint8_t>(c), 0, 0, 0 } {}
 		constexpr utf8_data(uint8_t c = 0) : data_{ c, 0, 0, 0 } {}
 
 		constexpr utf8_data(const std::string& utf8str) : data_{ 0, 0, 0, 0 }
