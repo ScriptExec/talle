@@ -1,4 +1,5 @@
 #pragma once
+#include <format>
 #include <talle/cmd/command.hpp>
 #include <talle/sys/platform.hpp>
 
@@ -13,7 +14,7 @@ namespace talle::cmd
 		template<meta::output_writer writer>
 		void write_ansi(writer& out) const
 		{
-			out << "\x1b]0;" << title << "\x07";
+			out << std::format("\x1b]0;{}\x07", title);
 		}
 
 #ifdef _WIN32
