@@ -18,6 +18,7 @@ namespace talle
 	{
 	public:
 		presenter(backend_type& backend) : backend_{ backend } {}
+		virtual ~presenter() = default;
 
 	protected:
 		draw_buffer buffer_;

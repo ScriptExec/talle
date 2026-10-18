@@ -22,15 +22,14 @@ namespace talle
 	public:
 		void render(const draw_buffer& buffer)
 		{
-			const auto& buffer_ = this->get_draw_buffer();
 			auto& back = presenter<backend_type>::backend();
 			back.flush();
-			for (uint16_t y = 0; y < buffer_.height(); ++y)
+			for (uint16_t y = 0; y < buffer.height(); ++y)
 			{
 				back.template execute<cmd::set_cursor_pos>(position{ 0, y });
-				for (uint16_t x = 0; x < buffer_.width(); ++x)
+				for (uint16_t x = 0; x < buffer.width(); ++x)
 				{
-					presenter<backend_type>::render_cell(buffer_, position{ x, y }, { position{ 0, 0 }, position(buffer_.width() - 1, buffer_.height() - 1) });
+					presenter<backend_type>::render_cell(buffer, position{ x, y }, { position{ 0, 0 }, position(buffer.width() - 1, buffer.height() - 1) });
 				}
 			}
 		}

@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 	term.set_cursor_visible(false);
 
 	term.write(std::format("{:<10}", "Standard:"));
-	for (size_t i = 0; i <= 7; ++i)
+	for (uint8_t i = 0; i <= 7; ++i)
 	{
 		term.set_foreground_color(style::color::base::dark_grey)
 			.set_background_color(style::color::ansi(i))
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
-	for (size_t i = 0; i <= 7; ++i)
+	for (uint8_t i = 0; i <= 7; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:>3} ", i))
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	}
 	term.newline();
 	term.write(std::format("{:<10}", "Intense:"));
-	for (size_t i = 8; i <= 15; ++i)
+	for (uint8_t i = 8; i <= 15; ++i)
 	{
 		term.set_foreground_color(style::color::base::black)
 			.set_background_color(style::color::ansi(i))
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
-	for (size_t i = 8; i <= 15; ++i)
+	for (uint8_t i = 8; i <= 15; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:>3} ", i))
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	}
 
 	term.newline(2).write(std::format("{:<10}", "Grays:"));
-	for (size_t i = 232; i <= 243; ++i)
+	for (uint8_t i = 232; i <= 243; ++i)
 	{
 		term.set_foreground_color(style::color::base::white)
 			.set_background_color(style::color::ansi(i))
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
-	for (size_t i = 232; i <= 243; ++i)
+	for (uint8_t i = 232; i <= 243; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
-	for (size_t i = 244; i <= 255; ++i)
+	for (uint8_t i = 244; i <= 255; ++i)
 	{
 		term.set_foreground_color(style::color::base::black)
 			.set_background_color(style::color::ansi(i))
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 			.flush();
 	}
 	term.newline().write(std::string(10, ' '));
-	for (size_t i = 244; i <= 255; ++i)
+	for (uint8_t i = 244; i <= 255; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 			.flush();
 	}
 	term.newline(2).write(std::format("{:<10}", "Rest:"));
-	for (size_t e = 0, i = 16; i <= 231; ++i)
+	for (uint8_t e = 0, i = 16; i <= 231; ++i)
 	{
 		term.set_foreground_color(style::color::base::black)
 			.set_background_color(style::color::ansi(i))
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	term.newline().write(std::string(10, ' '));
-	for (size_t e = 0, i = 16; i <= 231; ++i)
+	for (uint8_t e = 0, i = 16; i <= 231; ++i)
 	{
 		term.set_foreground_color(style::color::ansi(i))
 			.write(std::format("{:^5}", i))
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 				const auto foreground = brightness > 128 ? style::color::base::black : style::color::base::white;
 
 				term.set_foreground_color(foreground)
-					.set_background_color(style::color::ansi(i))
+					.set_background_color(style::color::ansi(static_cast<uint8_t>(i)))
 					.write(std::format(" {:02X}{:02X}{:02X} ", red, green, blue))
 					.reset_foreground_color()
 					.reset_background_color()
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 				const auto green = rgb[g];
 				const auto blue = rgb[b];
 
-				term.set_foreground_color(style::color::ansi(i))
+				term.set_foreground_color(style::color::ansi(static_cast<uint8_t>(i)))
 					.write(std::format(" {:02X}{:02X}{:02X} ", red, green, blue))
 					.reset_foreground_color();
 

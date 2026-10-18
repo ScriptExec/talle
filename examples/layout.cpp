@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
 		size_factor = std::max(0.25f, size_factor);
 		size_factor_y = std::max(0.5f, size_factor_y);
 		
-		auto draw_rect = rect(0, 0, static_cast<int>(buf_size.width - 1) * size_factor, static_cast<int>(buf_size.height - 1) * size_factor_y);
+		auto draw_rect = rect(0, 0, static_cast<uint16_t>(static_cast<int>(buf_size.width - 1) * size_factor), static_cast<uint16_t>(static_cast<int>(buf_size.height - 1) * size_factor_y));
 
 		rnd.clear();
 		rnd.render(root, draw_rect);

@@ -13,7 +13,7 @@ using namespace talle;
 
 static constexpr std::string_view charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]{}|;':\",./<>?`~";
 static std::default_random_engine random{ std::random_device{}() };
-static std::uniform_int_distribution<uint16_t> charset_distr{ 0, charset.size() - 1 };
+static std::uniform_int_distribution<uint16_t> charset_distr{ 0, static_cast<uint16_t>(charset.size() - 1) };
 
 static position random_pos(const rect& bounds)
 {
@@ -39,7 +39,7 @@ static style::color random_color()
 		return talle::style::color{ talle::style::color::ansi{ static_cast<uint8_t>(color_distr(random)) } };
 	}
 	std::uniform_int_distribution<uint16_t> rgb_distr{ 0, 255 };
-	return talle::style::color{ talle::style::color::rgb(rgb_distr(random), rgb_distr(random), rgb_distr(random)) };
+	return talle::style::color{ talle::style::color::rgb(static_cast<uint8_t>(rgb_distr(random)), static_cast<uint8_t>(rgb_distr(random)), static_cast<uint8_t>(rgb_distr(random))) };
 	
 }
 
