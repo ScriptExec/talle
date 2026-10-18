@@ -64,6 +64,30 @@ namespace talle
 			presenter_->set(pos, cell);
 		}
 
+		void render_text(const std::string& text, position pos, const style::style& style = {})
+		{
+			if (presenter_ == nullptr) return;
+
+			//TODO: Handle UTF-8 characters properly
+			//TODO: Handle newlines
+			for (size_t i = 0; i < text.size(); ++i)
+			{
+				presenter_->set(position{ pos.x + static_cast<uint16_t>(i), pos.y }, cell{ utf8_data{ text[i] }, style });
+			}
+		}
+
+		void render_text(const std::u8string& text, position pos, const style::style& style = {})
+		{
+			if (presenter_ == nullptr) return;
+
+			//TODO: Handle UTF-8 characters properly
+			//TODO: Handle newlines
+			for (size_t i = 0; i < text.size(); ++i)
+			{
+				presenter_->set(position{ pos.x + static_cast<uint16_t>(i), pos.y }, cell{ utf8_data{ text[i] }, style });
+			}
+		}
+
 		template<meta::frame frame_type>
 		void frame(const rect& box)
 		{
