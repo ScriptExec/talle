@@ -49,10 +49,10 @@ namespace talle
 		void render_cell(const draw_buffer& buffer, const position& pos, const rect& range)
 		{
 			auto& cell = buffer.at(pos);
-			auto style = cell.style();
+			const auto& style = cell.style();
 			bool is_first_cell = (pos.x == range.start.x and pos.y == range.start.y);
 			bool is_last_cell = (pos.x == range.end.x and pos.y == range.end.y);
-			bool reset_attributes = is_first_cell or is_last_cell;
+			bool reset_attributes = is_last_cell;
 
 			if (is_first_cell)
 			{

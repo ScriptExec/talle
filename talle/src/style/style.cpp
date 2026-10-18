@@ -9,26 +9,31 @@ namespace talle::style
 		foreground = color;
 		return *this;
 	}
+
 	style& style::reset_foreground()
 	{
 		foreground.reset();
 		return *this;
 	}
+
 	style& style::set_background(const std::optional<color>& color)
 	{
 		background = color;
 		return *this;
 	}
+
 	style& style::reset_background()
 	{
 		background.reset();
 		return *this;
 	}
+
 	style& style::set_underline(const std::optional<color>& color)
 	{
 		underline = color;
 		return *this;
 	}
+
 	style& style::reset_underline()
 	{
 		underline.reset();

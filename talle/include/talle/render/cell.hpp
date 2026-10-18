@@ -51,6 +51,11 @@ namespace talle
 			return data_ == other.data() and style_ == other.style();
 		}
 
+		bool operator!=(const cell& other) const
+		{
+			return !(*this == other);
+		}
+
 		///@return Empty cell filled with whitespace
 		static cell empty()
 		{
