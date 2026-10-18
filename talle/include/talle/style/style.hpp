@@ -29,10 +29,13 @@ namespace talle::style
 		style& reset();
 
 		style as_reset() const;
+		///@return A new style that is the result of transitioning to another style, used when optimizing the output of style changes in a terminal
+		style transition_into(const style& other) const;
 
 		bool has_foreground() const;
 		bool has_background() const;
 		bool has_underline() const;
+		bool empty() const;
 
 		bool operator==(const style& other) const;
 		bool operator!=(const style& other) const;

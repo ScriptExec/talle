@@ -17,7 +17,6 @@ namespace talle
 		}
 
 	public:
-
 		virtual void on_render() override
 		{
 			const auto& buffer_ = this->get_draw_buffer();
@@ -28,7 +27,7 @@ namespace talle
 				back.template execute<cmd::set_cursor_pos>(position{ 0, y });
 				for (uint16_t x = 0; x < buffer_.width(); ++x)
 				{
-					back.write(buffer_({ x, y }).data());
+					presenter<backend_type>::render_cell(buffer_, position{ x, y }, { position{ 0, 0 }, position(buffer_.width() - 1, buffer_.height() - 1) });
 				}
 			}
 		}

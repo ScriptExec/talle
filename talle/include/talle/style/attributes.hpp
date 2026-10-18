@@ -1,6 +1,7 @@
 #pragma once
 #include <bitset>
 #include <utility>
+#include <initializer_list>
 #include <talle/meta/writer.hpp>
 #include <talle/style/attribute.hpp>
 
@@ -49,6 +50,7 @@ namespace talle::style
 		const std::bitset<detail::attribute_element_count>& data() const;
 
 		bool has(attribute attr) const;
+		bool has(const std::initializer_list<attribute>& attrs) const;
 		bool empty() const;
 
 		iterator begin() const;

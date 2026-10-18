@@ -79,6 +79,15 @@ namespace talle::style
 		return data_.test(map_attribute_to_idx(attr));
 	}
 
+	bool attributes::has(const std::initializer_list<attribute>& attrs) const
+	{
+		for (auto attr : attrs)
+		{
+			if (!has(attr)) return false;
+		}
+		return true;
+	}
+
 	bool attributes::empty() const
 	{
 		return data_.none();

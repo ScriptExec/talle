@@ -21,6 +21,7 @@
 #include <talle/cmd/toggle_cursor_blinking.hpp>
 #include <talle/cmd/toggle_line_wrap.hpp>
 #include <talle/cmd/toggle_mouse_capture.hpp>
+#include <talle/cmd/update_style.hpp>
 #include <talle/cmd/write_colored_content.hpp>
 #include <talle/cmd/write_hyperlink.hpp>
 #include <talle/cmd/write_styled_content.hpp>

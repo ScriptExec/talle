@@ -30,7 +30,7 @@ namespace talle
 				back.template execute<cmd::set_cursor_pos>(position{ 0, y });
 				for (uint16_t x = 0; x < buffer_.width(); ++x)
 				{
-					back.write(buffer_({ x, y }).data());
+					presenter<backend_type>::render_cell(buffer_, position{ x, y }, { position{ 0, 0 }, position(buffer_.width() - 1, buffer_.height() - 1) });
 				}
 			}
 		}
@@ -41,10 +41,10 @@ namespace talle
 			for (auto range : diff.ranges)
 			{
 				auto y = range.start.y;
-				back.template execute<cmd::set_cursor_pos>(position{ range.start.x, y });
-				for (uint16_t x = range.start.x; x <= range.end.x; x++)
+				back.write(cmd::set_cursor_pos{ position{ range.start.x, y } });
+				for (uint16_t x = range.start.x; x <= range.end.x; ++x)
 				{
-					back.write(buffer({ x, y }).data());
+					presenter<backend_type>::render_cell(buffer, position{ x, y }, { range.start, range.end });
 				}
 			}
 		}

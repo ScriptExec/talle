@@ -45,6 +45,30 @@ namespace talle
 			return buffer_;
 		}
 
+		void render_cell(const draw_buffer& buffer, const position& pos, const rect& range)
+		{
+			auto& cell = buffer.at(pos);
+			auto style = cell.style();
+			bool is_first_cell = (pos.x == range.start.x and pos.y == range.start.y);
+			bool is_last_cell = (pos.x == range.end.x and pos.y == range.end.y);
+			bool reset_attributes = is_first_cell or is_last_cell;
+
+			if (is_first_cell)
+			{
+				backend_.write(cmd::set_style{ style });
+			}
+			else
+			{
+				auto prev_style = buffer[pos.y * buffer.width() + pos.x - 1].style();
+				backend_.write(cmd::update_style{ prev_style, style });
+			}
+			backend_.write(buffer.at(pos).data());
+			if (reset_attributes)
+			{
+				backend_.write(cmd::reset_attributes{});
+			}
+		}
+
 		virtual void set(position pos, const cell& cell)
 		{
 			auto size = buffer_.get_size();

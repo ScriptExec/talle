@@ -81,6 +81,60 @@ namespace talle::style
 		return result;
 	}
 
+	style style::transition_into(const style& other) const
+	{
+		style result;
+		
+		result.foreground = (foreground == other.foreground) ? std::nullopt : std::optional{ other.foreground.value_or(color::reset()) };
+		result.background = (background == other.background) ? std::nullopt : std::optional{ other.background.value_or(color::reset()) };
+		result.underline = (underline == other.underline) ? std::nullopt : std::optional{ other.underline.value_or(color::reset()) };
+
+		if (attributes != other.attributes)
+		{
+			result.attributes = other.attributes;
+			/*
+			if (attributes.has(attribute::bold) and !other.attributes.has(attribute::bold))
+			{
+				result.attributes.add(attribute::no_bold);
+			}
+			if (attributes.has(attribute::italic) and !other.attributes.has(attribute::italic))
+			{
+				result.attributes.add(attribute::no_italic);
+			}
+			auto other_underlines = { attribute::underlined, attribute::underlined_double, attribute::underlined_curled, attribute::underlined_dotted, attribute::underlined_dashed };
+			if (attributes.has(other_underlines) and !other.attributes.has(other_underlines))
+			{
+				result.attributes.add(attribute::no_underline);
+			}
+			if (attributes.has({ attribute::slow_blink, attribute::rapid_blink }) and !other.attributes.has({ attribute::slow_blink, attribute::rapid_blink }))
+			{
+				result.attributes.add(attribute::no_blink);
+			}
+			if (attributes.has(attribute::invert) and !other.attributes.has(attribute::invert))
+			{
+				result.attributes.add(attribute::no_invert);
+			}
+			if (attributes.has(attribute::hidden) and !other.attributes.has(attribute::hidden))
+			{
+				result.attributes.add(attribute::no_hidden);
+			}
+			if (attributes.has(attribute::strikethrough) and !other.attributes.has(attribute::strikethrough))
+			{
+				result.attributes.add(attribute::no_strikethrough);
+			}
+			if (attributes.has({ attribute::framed, attribute::encircled }) and !other.attributes.has({ attribute::framed, attribute::encircled }))
+			{
+				result.attributes.add(attribute::no_frame_or_encircle);
+			}
+			if (attributes.has(attribute::overlined) and !other.attributes.has(attribute::overlined))
+			{
+				result.attributes.add(attribute::no_overline);
+			}
+			*/
+		}
+		return result;
+	}
+
 	bool style::has_foreground() const
 	{
 		return foreground.has_value();
@@ -94,6 +148,11 @@ namespace talle::style
 	bool style::has_underline() const
 	{
 		return underline.has_value();
+	}
+
+	bool style::empty() const
+	{
+		return !foreground.has_value() and !background.has_value() and !underline.has_value() and attributes.empty();
 	}
 
 	bool style::operator==(const style& other) const

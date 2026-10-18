@@ -1,4 +1,5 @@
 #include <talle/talle.hpp>
+#include <talle/style/style.hpp>
 #include <talle/render/renderer.hpp>
 #include <talle/render/frame/rounded_line.hpp>
 #include <cmath>
@@ -25,14 +26,58 @@ static position random_pos(const rect& bounds)
 	return { x_range(random), y_range(random) };
 }
 
+static style::color random_color()
+{
+	std::uniform_int_distribution<int> color_distr{ 0, 255 };
+	if (std::uniform_int_distribution<int>{ 0, 1 }(random))
+	{
+		std::uniform_int_distribution<uint16_t> base_distr{ static_cast<uint16_t>(talle::style::color::base::black), static_cast<uint16_t>(talle::style::color::base::grey) };
+		return talle::style::color{ talle::style::color::base{ static_cast<talle::style::color::base>(base_distr(random)) } };
+	}
+	if (std::uniform_int_distribution<int>{ 0, 1 }(random))
+	{
+		return talle::style::color{ talle::style::color::ansi{ static_cast<uint8_t>(color_distr(random)) } };
+	}
+	std::uniform_int_distribution<uint16_t> rgb_distr{ 0, 255 };
+	return talle::style::color{ talle::style::color::rgb(rgb_distr(random), rgb_distr(random), rgb_distr(random)) };
+	
+}
+
+static talle::style::style random_style()
+{
+	talle::style::style result;
+	std::uniform_int_distribution<int> color_distr{ 0, 255 };
+	if (std::uniform_int_distribution<int>{ 0, 1 }(random))
+	{
+		result.set_foreground(talle::style::color{ random_color() });
+	}
+	if (std::uniform_int_distribution<int>{ 0, 1 }(random))
+	{
+		result.set_background(talle::style::color{ random_color() });
+	}
+	/*
+	if (std::uniform_int_distribution<int>{ 0, 1 }(random))
+	{
+		result.set_underline(talle::style::color{ random_color() });
+	}
+	*/
+	if (std::uniform_int_distribution<int>{ 0, 1 }(random))
+	{
+		std::uniform_int_distribution<uint16_t> x_range{ static_cast<uint16_t>(talle::style::attribute::bold), static_cast<uint16_t>(talle::style::attribute::normal_intensity) };
+		result.add(static_cast<talle::style::attribute>(x_range(random)));
+	}
+	return result;
+}
+
 int main(int argc, char* argv[])
 {
-	constexpr bool show_cursor = true;
+	constexpr bool show_cursor = false;
 
 	auto back = backend{ std::cout };
 	auto term = terminal{ back };
 	auto rnd = renderer{ back };
 
+	term.enable_alternative_buffer(true);
 	if (!show_cursor)
 	{
 		term.set_cursor_visible(false);
@@ -93,7 +138,7 @@ int main(int argc, char* argv[])
 		
 		auto buf_size = rnd.get_buffer_size();
 		auto draw_rect = rect(0, 0, buf_size.width - 1, buf_size.height - 1);
-		rnd.render(random_pos(draw_rect), cell{ utf8_data{ charset.at(charset_distr(random))} });
+		rnd.render(random_pos(draw_rect), cell{ utf8_data{ charset.at(charset_distr(random))}, random_style() });
 		rnd.render();
 
 		auto fps = 1.0 / std::chrono::duration<double>(std::chrono::steady_clock::now() - frame_start_time).count();
@@ -103,4 +148,5 @@ int main(int argc, char* argv[])
 	{
 		term.set_cursor_visible(true);
 	}
+	term.enable_alternative_buffer(false);
 }
