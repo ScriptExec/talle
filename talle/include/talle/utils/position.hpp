@@ -13,7 +13,7 @@ namespace talle
 
 		constexpr bool operator==(const position& other) const
 		{
-			return x == other.x && y == other.y;
+			return x == other.x and y == other.y;
 		}
 
 		constexpr bool operator!=(const position& other) const
